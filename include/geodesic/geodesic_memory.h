@@ -4,6 +4,7 @@
 
 //two fast and simple memory allocators
 
+#include <memory>
 #include <vector>
 #include <assert.h>
 #include <math.h>
@@ -153,7 +154,7 @@ public:
 	void clear()
 	{
 		m_num_bytes = 0;
-		m_buffer = std::auto_ptr<double>();
+		m_buffer = std::unique_ptr<double>();
 	}
 
 	template<class T>
@@ -163,7 +164,7 @@ public:
 		if(wanted > m_num_bytes)
 		{
 			unsigned new_size = (unsigned) ceil(wanted / (double)sizeof(double));
-			m_buffer = std::auto_ptr<double>(new double[new_size]);
+			m_buffer = std::unique_ptr<double>(new double[new_size]);
 			m_num_bytes = new_size*sizeof(double);
 		}
 
@@ -184,7 +185,7 @@ public:
 
 private:
 
-	std::auto_ptr<double> m_buffer;
+	std::unique_ptr<double> m_buffer;
 	unsigned m_num_bytes;
 };
 

@@ -45,7 +45,7 @@ inline double angle_from_edges(double const a,			//compute the cosine of the ang
 }
 
 template<class Points, class Faces>
-inline bool read_mesh_from_file(char* filename,
+inline bool read_mesh_from_file(const char* filename,
 								Points& points,
 								Faces& faces)
 {

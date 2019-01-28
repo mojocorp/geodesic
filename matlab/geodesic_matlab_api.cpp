@@ -1,6 +1,6 @@
-#define GEODESIC_DLL_IMPORT __declspec(dllexport)
-
-#include <boost\shared_ptr.hpp>
+#ifdef _WIN32
+#    define GEODESIC_DLL_IMPORT __declspec(dllexport)
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -13,10 +13,10 @@
 #include "geodesic_algorithm_exact.h"
 #include "geodesic_matlab_api.h"
 
-typedef boost::shared_ptr<geodesic::Mesh> mesh_shared_pointer;
+typedef std::shared_ptr<geodesic::Mesh> mesh_shared_pointer;
 std::vector<mesh_shared_pointer> meshes;
 
-typedef boost::shared_ptr<geodesic::GeodesicAlgorithmBase> algorithm_shared_pointer;
+typedef std::shared_ptr<geodesic::GeodesicAlgorithmBase> algorithm_shared_pointer;
 std::vector<algorithm_shared_pointer> algorithms;
 
 std::vector<geodesic::SurfacePoint> output_path;
@@ -32,6 +32,7 @@ std::size_t find_mesh_id(geodesic::Mesh* mesh)
 			return i;
 		}
 	}
+	return 0;
 }
 
 GEODESIC_DLL_IMPORT long distance_and_source(long algorithm_id,		//quickly find what source this point belongs to and what is the distance to this source
