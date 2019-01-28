@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/mojocorp/geodesic.png)](http://travis-ci.org/mojocorp/geodesic)
+
 # Introduction
 
 This is an implementation of geodesic (shortest path) algorithm for triangular mesh (triangulated surface) first described by Mitchell, Mount and Papadimitriou in 1987[1] with some minor improvements, extensions and simplifications. The algorithm has O(n^2 log n) worst-case time complexity, but in practice can work with million-node meshes in reasonable time. For the quick overview, see [2].
