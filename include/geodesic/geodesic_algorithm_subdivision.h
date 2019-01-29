@@ -242,7 +242,7 @@ GeodesicAlgorithmSubdivision::list_nodes_visible_from_node(
     unsigned index = distances.size();
     distances.resize(storage.size());
     for (; index < storage.size(); ++index) {
-        distances[index] = node->distance(&storage[index]->surface_point());
+        distances[index] = node->distance(storage[index]->surface_point());
     }
 }
 

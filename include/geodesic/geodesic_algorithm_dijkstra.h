@@ -35,7 +35,7 @@ class DijkstraNode
                  : s1->vertex()->id() < s2->vertex()->id();
     }
 
-    double distance(SurfacePoint* p) { return m_vertex->distance(p); }
+    double distance(const SurfacePoint& p) const { return m_vertex->distance(p); }
 
     SurfacePoint surface_point() { return SurfacePoint(m_vertex); }
 

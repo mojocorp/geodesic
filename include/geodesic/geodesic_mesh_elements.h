@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <cstddef>
 #include <cmath>
+#include <algorithm>
 
 namespace geodesic {
 
@@ -33,12 +34,12 @@ class SimpleVector   // for efficiency, it uses an outside memory allocator
 
     typedef Data* iterator;
 
-    unsigned size() { return m_size; }
+    size_t size() const { return m_size; }
     iterator begin() { return m_begin; }
     iterator end() { return m_begin + m_size; }
 
     template<class DataPointer>
-    void set_allocation(DataPointer begin, unsigned size)
+    void set_allocation(DataPointer begin, size_t size)
     {
         assert(begin != NULL || size == 0);
         m_size = size;
@@ -51,6 +52,12 @@ class SimpleVector   // for efficiency, it uses an outside memory allocator
         return *(m_begin + i);
     }
 
+    const Data& operator[](unsigned i) const
+    {
+        assert(i < m_size);
+        return *(m_begin + i);
+    }
+
     void clear()
     {
         m_size = 0;
@@ -58,7 +65,7 @@ class SimpleVector   // for efficiency, it uses an outside memory allocator
     }
 
   private:
-    unsigned m_size;
+    size_t m_size;
     Data* m_begin;
 };
 
@@ -87,7 +94,7 @@ class MeshElementBase // prototype of vertices, edges and faces
     face_pointer_vector& adjacent_faces() { return m_adjacent_faces; }
 
     unsigned& id() { return m_id; }
-    PointType type() { return m_type; }
+    PointType type() const { return m_type; }
 
   protected:
     vertex_pointer_vector m_adjacent_vertices; // list of the adjacent vertices
@@ -102,58 +109,43 @@ class Point3D // point in 3D and corresponding operations
 {
   public:
     Point3D() {}
-    Point3D(Point3D* p)
-    {
-        x() = p->x();
-        y() = p->y();
-        z() = p->z();
-    }
+    Point3D(const Point3D& p) { set(p.x(), p.y(), p.z()); }
 
-    double* xyz() { return m_coordinates; }
-    double& x() { return *m_coordinates; }
-    double& y() { return *(m_coordinates + 1); }
-    double& z() { return *(m_coordinates + 2); }
+    double x() const { return m_coordinates[0]; }
+    double y() const { return m_coordinates[1]; }
+    double z() const { return m_coordinates[2]; }
 
     void set(double new_x, double new_y, double new_z)
     {
-        x() = new_x;
-        y() = new_y;
-        z() = new_z;
+        m_coordinates[0] = new_x;
+        m_coordinates[1] = new_y;
+        m_coordinates[2] = new_z;
     }
 
-    void set(double* data)
+    double distance(const Point3D& v) const
     {
-        x() = *data;
-        y() = *(data + 1);
-        z() = *(data + 2);
-    }
-
-    double distance(double* v)
-    {
-        double dx = m_coordinates[0] - v[0];
-        double dy = m_coordinates[1] - v[1];
-        double dz = m_coordinates[2] - v[2];
+        const double dx = m_coordinates[0] - v.x();
+        const double dy = m_coordinates[1] - v.y();
+        const double dz = m_coordinates[2] - v.z();
 
         return std::sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    double distance(Point3D* v) { return distance(v->xyz()); }
-
-    void add(Point3D* v)
+    void add(const Point3D& v)
     {
-        x() += v->x();
-        y() += v->y();
-        z() += v->z();
+        m_coordinates[0] += v.x();
+        m_coordinates[1] += v.y();
+        m_coordinates[2] += v.z();
     }
 
     void multiply(double v)
     {
-        x() *= v;
-        y() *= v;
-        z() *= v;
+        m_coordinates[0] *= v;
+        m_coordinates[1] *= v;
+        m_coordinates[2] *= v;
     }
 
-  private:
+  protected:
     double m_coordinates[3]; // xyz
 };
 
@@ -232,26 +224,26 @@ class Edge : public MeshElementBase
                                                        : adjacent_vertices()[0];
     }
 
-    bool belongs(vertex_pointer v)
+    bool belongs(vertex_pointer v) const
     {
-        return adjacent_vertices()[0]->id() == v->id() || adjacent_vertices()[1]->id() == v->id();
+        return m_adjacent_vertices[0]->id() == v->id() || m_adjacent_vertices[1]->id() == v->id();
     }
 
-    bool is_boundary() { return adjacent_faces().size() == 1; }
+    bool is_boundary() const { return m_adjacent_faces.size() == 1; }
 
     vertex_pointer v0() { return adjacent_vertices()[0]; }
     vertex_pointer v1() { return adjacent_vertices()[1]; }
 
-    void local_coordinates(Point3D* point, double& x, double& y)
+    void local_coordinates(const Point3D* point, double& x, double& y) const
     {
-        double d0 = point->distance(v0());
+        double d0 = point->distance(*m_adjacent_vertices[0]);
         if (d0 < 1e-50) {
             x = 0.0;
             y = 0.0;
             return;
         }
 
-        double d1 = point->distance(v1());
+        double d1 = point->distance(*m_adjacent_vertices[1]);
         if (d1 < 1e-50) {
             x = m_length;
             y = 0.0;
@@ -259,7 +251,7 @@ class Edge : public MeshElementBase
         }
 
         x = m_length / 2.0 + (d0 * d0 - d1 * d1) / (2.0 * m_length);
-        y = sqrt(std::max(0.0, d0 * d0 - x * x));
+        y = std::sqrt(std::max(0.0, d0 * d0 - x * x));
         return;
     }
 
@@ -274,24 +266,24 @@ class SurfacePoint : public Point3D // point on the surface of the mesh
       : m_p(nullptr)
     {}
 
-    SurfacePoint(vertex_pointer v)
+    SurfacePoint(const vertex_pointer v)
       : // set the surface point in the vertex
-      SurfacePoint::Point3D(v)
+      SurfacePoint::Point3D(*v)
       , m_p(v)
     {}
 
-    SurfacePoint(face_pointer f)
+    SurfacePoint(const face_pointer f)
       : // set the surface point in the center of the face
       m_p(f)
     {
         set(0, 0, 0);
-        add(f->adjacent_vertices()[0]);
-        add(f->adjacent_vertices()[1]);
-        add(f->adjacent_vertices()[2]);
+        add(*f->adjacent_vertices()[0]);
+        add(*f->adjacent_vertices()[1]);
+        add(*f->adjacent_vertices()[2]);
         multiply(1. / 3.);
     }
 
-    SurfacePoint(edge_pointer e, // set the surface point in the middle of the edge
+    SurfacePoint(const edge_pointer e, // set the surface point in the middle of the edge
                  double a = 0.5)
       : m_p(e)
     {
@@ -300,12 +292,12 @@ class SurfacePoint : public Point3D // point on the surface of the mesh
         vertex_pointer v0 = e->adjacent_vertices()[0];
         vertex_pointer v1 = e->adjacent_vertices()[1];
 
-        x() = b * v0->x() + a * v1->x();
-        y() = b * v0->y() + a * v1->y();
-        z() = b * v0->z() + a * v1->z();
+        m_coordinates[0] = b * v0->x() + a * v1->x();
+        m_coordinates[1] = b * v0->y() + a * v1->y();
+        m_coordinates[2] = b * v0->z() + a * v1->z();
     }
 
-    SurfacePoint(base_pointer g, double x, double y, double z, PointType t = UNDEFINED_POINT)
+    SurfacePoint(const base_pointer g, double x, double y, double z, PointType t = UNDEFINED_POINT)
       : m_p(g)
     {
         set(x, y, z);
@@ -315,8 +307,9 @@ class SurfacePoint : public Point3D // point on the surface of the mesh
 
     ~SurfacePoint() {}
 
-    PointType type() { return m_p ? m_p->type() : UNDEFINED_POINT; }
+    PointType type() const { return m_p ? m_p->type() : UNDEFINED_POINT; }
     base_pointer& base_element() { return m_p; }
+    const base_pointer& base_element() const { return m_p; }
 
   protected:
     base_pointer m_p; // could be face, vertex or edge pointer

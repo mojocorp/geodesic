@@ -28,21 +28,23 @@ class Mesh
     ~Mesh() {}
 
     template<class Points, class Faces>
-    void initialize_mesh_data(unsigned num_vertices,
-                              Points& p,
-                              unsigned num_faces,
-                              Faces& tri); // build mesh from regular point-triangle representation
+    void initialize_mesh_data(
+      unsigned num_vertices,
+      const Points& p,
+      unsigned num_faces,
+      const Faces& tri); // build mesh from regular point-triangle representation
 
     template<class Points, class Faces>
-    void initialize_mesh_data(Points& p,
-                              Faces& tri); // build mesh from regular point-triangle representation
+    void initialize_mesh_data(
+      const Points& p,
+      const Faces& tri); // build mesh from regular point-triangle representation
 
     std::vector<Vertex>& vertices() { return m_vertices; }
     std::vector<Edge>& edges() { return m_edges; }
     std::vector<Face>& faces() { return m_faces; }
 
     unsigned closest_vertices(
-      SurfacePoint* p,
+      const SurfacePoint* p,
       std::vector<vertex_pointer>* storage = nullptr); // list vertices closest to the point
 
   private:
@@ -61,7 +63,7 @@ class Mesh
 };
 
 inline unsigned
-Mesh::closest_vertices(SurfacePoint* p, std::vector<vertex_pointer>* storage)
+Mesh::closest_vertices(const SurfacePoint* p, std::vector<vertex_pointer>* storage)
 {
     assert(p->type() != UNDEFINED_POINT);
 
@@ -72,7 +74,7 @@ Mesh::closest_vertices(SurfacePoint* p, std::vector<vertex_pointer>* storage)
         return 1;
     } else if (p->type() == FACE) {
         if (storage) {
-            vertex_pointer* vp = p->base_element()->adjacent_vertices().begin();
+            const vertex_pointer* vp = p->base_element()->adjacent_vertices().begin();
             storage->push_back(*vp);
             storage->push_back(*(vp + 1));
             storage->push_back(*(vp + 2));
@@ -80,14 +82,14 @@ Mesh::closest_vertices(SurfacePoint* p, std::vector<vertex_pointer>* storage)
         return 2;
     } else if (p->type() == EDGE) // for edge include all 4 adjacent vertices
     {
-        edge_pointer edge = static_cast<edge_pointer>(p->base_element());
+        const edge_pointer edge = static_cast<const edge_pointer>(p->base_element());
 
         if (storage) {
             storage->push_back(edge->adjacent_vertices()[0]);
             storage->push_back(edge->adjacent_vertices()[1]);
 
             for (unsigned i = 0; i < edge->adjacent_faces().size(); ++i) {
-                face_pointer face = edge->adjacent_faces()[i];
+                const face_pointer face = edge->adjacent_faces()[i];
                 storage->push_back(face->opposite_vertex(edge));
             }
         }
@@ -100,8 +102,9 @@ Mesh::closest_vertices(SurfacePoint* p, std::vector<vertex_pointer>* storage)
 
 template<class Points, class Faces>
 void
-Mesh::initialize_mesh_data(Points& p,
-                           Faces& tri) // build mesh from regular point-triangle representation
+Mesh::initialize_mesh_data(
+  const Points& p,
+  const Faces& tri) // build mesh from regular point-triangle representation
 {
     assert(p.size() % 3 == 0);
     unsigned const num_vertices = p.size() / 3;
@@ -113,7 +116,10 @@ Mesh::initialize_mesh_data(Points& p,
 
 template<class Points, class Faces>
 void
-Mesh::initialize_mesh_data(unsigned num_vertices, Points& p, unsigned num_faces, Faces& tri)
+Mesh::initialize_mesh_data(unsigned num_vertices,
+                           const Points& p,
+                           unsigned num_faces,
+                           const Faces& tri)
 {
     unsigned const approximate_number_of_internal_pointers = (num_vertices + num_faces) * 4;
     unsigned const max_number_of_pointer_blocks = 100;
@@ -127,9 +133,7 @@ Mesh::initialize_mesh_data(unsigned num_vertices, Points& p, unsigned num_faces,
         v.id() = i;
 
         unsigned shift = 3 * i;
-        v.x() = p[shift];
-        v.y() = p[shift + 1];
-        v.z() = p[shift + 2];
+        v.set(p[shift], p[shift + 1], p[shift + 2]);
     }
 
     m_faces.resize(num_faces);
@@ -228,7 +232,7 @@ Mesh::build_adjacencies()
         e.adjacent_vertices()[0] = &m_vertices[half_edges[i].vertex_0];
         e.adjacent_vertices()[1] = &m_vertices[half_edges[i].vertex_1];
 
-        e.length() = e.adjacent_vertices()[0]->distance(e.adjacent_vertices()[1]);
+        e.length() = e.adjacent_vertices()[0]->distance(*e.adjacent_vertices()[1]);
         assert(e.length() > 1e-100); // algorithm works well with non-degenerate meshes only
 
         if (i != half_edges.size() - 1 && half_edges[i] == half_edges[i + 1]) // double edge
@@ -408,7 +412,7 @@ Mesh::verify() // verifies connectivity of the mesh and prints some debug info
     double dx = maxx - minx;
     double dy = maxy - miny;
     double dz = maxz - minz;
-    std::cout << "approximate diameter of the mesh is " << sqrt(dx * dx + dy * dy + dz * dz)
+    std::cout << "approximate diameter of the mesh is " << std::sqrt(dx * dx + dy * dy + dz * dz)
               << std::endl;
 
     double min_angle = 1e100;
@@ -429,9 +433,9 @@ Mesh::verify() // verifies connectivity of the mesh and prints some debug info
 }
 
 inline void
-fill_surface_point_structure(geodesic::SurfacePoint* point, double* data, Mesh* mesh)
+fill_surface_point_structure(geodesic::SurfacePoint* point, const double* data, Mesh* mesh)
 {
-    point->set(data);
+    point->set(data[0], data[1], data[2]);
     unsigned type = (unsigned)data[3];
     unsigned id = (unsigned)data[4];
 
@@ -448,7 +452,7 @@ fill_surface_point_structure(geodesic::SurfacePoint* point, double* data, Mesh* 
 }
 
 inline void
-fill_surface_point_double(geodesic::SurfacePoint* point, double* data, long mesh_id)
+fill_surface_point_double(const geodesic::SurfacePoint* point, double* data, long mesh_id)
 {
     data[0] = point->x();
     data[1] = point->y();

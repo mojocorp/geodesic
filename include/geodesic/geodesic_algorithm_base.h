@@ -29,18 +29,18 @@ class GeodesicAlgorithmBase
     virtual ~GeodesicAlgorithmBase() {}
 
     virtual void propagate(
-      std::vector<SurfacePoint>& sources,
+      const std::vector<SurfacePoint>& sources,
       double max_propagation_distance = GEODESIC_INF, // propagation algorithm stops after reaching
                                                       // the certain distance from the source
       std::vector<SurfacePoint>* stop_points =
         nullptr) = 0; // or after ensuring that all the stop_points are covered
 
-    virtual void trace_back(SurfacePoint& destination, // trace back piecewise-linear path
+    virtual void trace_back(const SurfacePoint& destination, // trace back piecewise-linear path
                             std::vector<SurfacePoint>& path) = 0;
 
     void geodesic(
-      SurfacePoint& source,
-      SurfacePoint& destination,
+      const SurfacePoint& source,
+      const SurfacePoint& destination,
       std::vector<SurfacePoint>& path); // lazy people can find geodesic path with one function call
 
     void geodesic(std::vector<SurfacePoint>& sources,
@@ -49,24 +49,24 @@ class GeodesicAlgorithmBase
                     paths); // lazy people can find geodesic paths with one function call
 
     virtual unsigned best_source(
-      SurfacePoint& point, // after propagation step is done, quickly find what source this point
-                           // belongs to and what is the distance to this source
+      const SurfacePoint& point, // after propagation step is done, quickly find what source this
+                                 // point belongs to and what is the distance to this source
       double& best_source_distance) = 0;
 
-    virtual void print_statistics() // print info about timing and memory usage in the propagation
-                                    // step of the algorithm
+    virtual void print_statistics() const // print info about timing and memory usage in the
+                                          // propagation step of the algorithm
     {
         std::cout << "propagation step took " << m_time_consumed << " seconds " << std::endl;
     }
 
-    AlgorithmType type() { return m_type; }
+    AlgorithmType type() const { return m_type; }
 
-    virtual std::string name();
+    virtual std::string name() const;
 
     geodesic::Mesh* mesh() { return m_mesh; }
 
   protected:
-    void set_stop_conditions(std::vector<SurfacePoint>* stop_points, double stop_distance);
+    void set_stop_conditions(const std::vector<SurfacePoint>* stop_points, double stop_distance);
     double stop_distance() { return m_max_propagation_distance; }
 
     AlgorithmType m_type; // type of the algorithm
@@ -84,26 +84,26 @@ class GeodesicAlgorithmBase
 };
 
 inline double
-length(std::vector<SurfacePoint>& path)
+length(const std::vector<SurfacePoint>& path)
 {
     double length = 0;
     if (!path.empty()) {
         for (unsigned i = 0; i < path.size() - 1; ++i) {
-            length += path[i].distance(&path[i + 1]);
+            length += path[i].distance(path[i + 1]);
         }
     }
     return length;
 }
 
 inline void
-print_info_about_path(std::vector<SurfacePoint>& path)
+print_info_about_path(const std::vector<SurfacePoint>& path)
 {
     std::cout << "number of the points in the path = " << path.size()
               << ", length of the path = " << length(path) << std::endl;
 }
 
 inline std::string
-GeodesicAlgorithmBase::name()
+GeodesicAlgorithmBase::name() const
 {
     switch (m_type) {
         case EXACT:
@@ -120,8 +120,8 @@ GeodesicAlgorithmBase::name()
 
 inline void
 GeodesicAlgorithmBase::geodesic(
-  SurfacePoint& source,
-  SurfacePoint& destination,
+  const SurfacePoint& source,
+  const SurfacePoint& destination,
   std::vector<SurfacePoint>& path) // lazy people can find geodesic path with one function call
 {
     std::vector<SurfacePoint> sources(1, source);
@@ -154,7 +154,7 @@ GeodesicAlgorithmBase::geodesic(
 }
 
 inline void
-GeodesicAlgorithmBase::set_stop_conditions(std::vector<SurfacePoint>* stop_points,
+GeodesicAlgorithmBase::set_stop_conditions(const std::vector<SurfacePoint>* stop_points,
                                            double stop_distance)
 {
     m_max_propagation_distance = stop_distance;
@@ -168,7 +168,7 @@ GeodesicAlgorithmBase::set_stop_conditions(std::vector<SurfacePoint>* stop_point
 
     std::vector<vertex_pointer> possible_vertices;
     for (unsigned i = 0; i < stop_points->size(); ++i) {
-        SurfacePoint* point = &(*stop_points)[i];
+        const SurfacePoint* point = &(*stop_points)[i];
 
         possible_vertices.clear();
         m_mesh->closest_vertices(point, &possible_vertices);
@@ -176,7 +176,7 @@ GeodesicAlgorithmBase::set_stop_conditions(std::vector<SurfacePoint>* stop_point
         vertex_pointer closest_vertex = nullptr;
         double min_distance = 1e100;
         for (unsigned j = 0; j < possible_vertices.size(); ++j) {
-            double distance = point->distance(possible_vertices[j]);
+            const double distance = point->distance(*possible_vertices[j]);
             if (distance < min_distance) {
                 min_distance = distance;
                 closest_vertex = possible_vertices[j];

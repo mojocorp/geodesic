@@ -30,20 +30,20 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
     ~GeodesicAlgorithmExact() override {}
 
     void propagate(
-      std::vector<SurfacePoint>& sources,
+      const std::vector<SurfacePoint>& sources,
       double max_propagation_distance = GEODESIC_INF, // propagation algorithm stops after reaching
                                                       // the certain distance from the source
       std::vector<SurfacePoint>* stop_points =
         nullptr) override; // or after ensuring that all the stop_points are covered
 
-    void trace_back(SurfacePoint& destination, // trace back piecewise-linear path
+    void trace_back(const SurfacePoint& destination, // trace back piecewise-linear path
                     std::vector<SurfacePoint>& path) override;
 
-    unsigned best_source(SurfacePoint& point, // quickly find what source this point belongs to and
-                                              // what is the distance to this source
+    unsigned best_source(const SurfacePoint& point, // quickly find what source this point belongs
+                                                    // to and what is the distance to this source
                          double& best_source_distance) override;
 
-    void print_statistics() override;
+    void print_statistics() const override;
 
   private:
     typedef std::set<interval_pointer, Interval> IntervalQueue;
@@ -85,7 +85,7 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
       interval_pointer zero,
       IntervalWithStop* one); // intersecting two intervals with up to three intervals in the end
 
-    interval_pointer best_first_interval(SurfacePoint& point,
+    interval_pointer best_first_interval(const SurfacePoint& point,
                                          double& best_total_distance,
                                          double& best_interval_position,
                                          unsigned& best_source_index);
@@ -104,7 +104,7 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
 
     list_pointer interval_list(edge_pointer e) { return &m_edge_interval_lists[e->id()]; }
 
-    void set_sources(std::vector<SurfacePoint>& sources) { m_sources.initialize(sources); }
+    void set_sources(const std::vector<SurfacePoint>& sources) { m_sources.initialize(sources); }
 
     void initialize_propagation_data();
 
@@ -112,7 +112,7 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
       MeshElementBase* p,
       std::vector<edge_pointer>& storage); // used in initialization
 
-    long visible_from_source(SurfacePoint& point); // used in backtracing
+    long visible_from_source(const SurfacePoint& point); // used in backtracing
 
     void best_point_on_the_edge_set(SurfacePoint& point,
                                     std::vector<edge_pointer> const& storage,
@@ -199,14 +199,14 @@ GeodesicAlgorithmExact::possible_traceback_edges(SurfacePoint& point,
 }
 
 inline long
-GeodesicAlgorithmExact::visible_from_source(SurfacePoint& point) // negative if not visible
+GeodesicAlgorithmExact::visible_from_source(const SurfacePoint& point) // negative if not visible
 {
     assert(point.type() != UNDEFINED_POINT);
 
     if (point.type() == EDGE) {
         edge_pointer e = static_cast<edge_pointer>(point.base_element());
         list_pointer list = interval_list(e);
-        double position = std::min(point.distance(e->v0()), e->length());
+        double position = std::min(point.distance(*e->v0()), e->length());
         interval_pointer interval = list->covering_interval(position);
         // assert(interval);
         if (interval && interval->visible_from_source()) {
@@ -374,7 +374,7 @@ GeodesicAlgorithmExact::intersect_intervals(
             double det = B * B - A * C;
             if (det > local_small_epsilon * local_small_epsilon) // two roots
             {
-                det = sqrt(det);
+                det = std::sqrt(det);
                 if (A > 0.0) // make sure that the roots are ordered
                 {
                     inter[0] = (-B - det) / A;
@@ -485,7 +485,7 @@ GeodesicAlgorithmExact::initialize_propagation_data()
 
 inline void
 GeodesicAlgorithmExact::propagate(
-  std::vector<SurfacePoint>& sources,
+  const std::vector<SurfacePoint>& sources,
   double max_propagation_distance, // propagation algorithm stops after reaching the certain
                                    // distance from the source
   std::vector<SurfacePoint>* stop_points)
@@ -918,7 +918,7 @@ GeodesicAlgorithmExact::compute_propagated_parameters(
         if (first_interval && turn_left) {
             p->start() = 0.0;
             p->stop() = L;
-            p->d() = d + sqrt(pseudo_x * pseudo_x + pseudo_y * pseudo_y);
+            p->d() = d + std::sqrt(pseudo_x * pseudo_x + pseudo_y * pseudo_y);
             p->pseudo_y() = 0.0;
             p->pseudo_x() = 0.0;
             return 1;
@@ -954,7 +954,7 @@ GeodesicAlgorithmExact::compute_propagated_parameters(
         p->start() = L2;
         p->stop() = L;
         double dx = pseudo_x - end;
-        p->d() = d + sqrt(dx * dx + pseudo_y * pseudo_y);
+        p->d() = d + std::sqrt(dx * dx + pseudo_y * pseudo_y);
         p->pseudo_x() = end * cos_alpha;
         p->pseudo_y() = -end * sin_alpha;
 
@@ -1061,7 +1061,7 @@ GeodesicAlgorithmExact::construct_propagated_intervals(
 
 inline unsigned
 GeodesicAlgorithmExact::best_source(
-  SurfacePoint&
+  const SurfacePoint&
     point, // quickly find what source this point belongs to and what is the distance to this source
   double& best_source_distance)
 {
@@ -1074,7 +1074,7 @@ GeodesicAlgorithmExact::best_source(
 }
 
 inline interval_pointer
-GeodesicAlgorithmExact::best_first_interval(SurfacePoint& point,
+GeodesicAlgorithmExact::best_first_interval(const SurfacePoint& point,
                                             double& best_total_distance,
                                             double& best_interval_position,
                                             unsigned& best_source_index)
@@ -1088,7 +1088,7 @@ GeodesicAlgorithmExact::best_first_interval(SurfacePoint& point,
         edge_pointer e = static_cast<edge_pointer>(point.base_element());
         list_pointer list = interval_list(e);
 
-        best_interval_position = point.distance(e->v0());
+        best_interval_position = point.distance(*e->v0());
         best_interval = list->covering_interval(best_interval_position);
         if (best_interval) {
             // assert(best_interval && best_interval->d() < GEODESIC_INF);
@@ -1120,7 +1120,7 @@ GeodesicAlgorithmExact::best_first_interval(SurfacePoint& point,
         for (SortedSources::sorted_iterator it = local_sources.first; it != local_sources.second;
              ++it) {
             SurfacePointWithIndex* source = *it;
-            double distance = point.distance(source);
+            double distance = point.distance(*source);
             if (distance < best_total_distance) {
                 best_interval = nullptr;
                 best_total_distance = distance;
@@ -1159,8 +1159,9 @@ GeodesicAlgorithmExact::best_first_interval(SurfacePoint& point,
 }
 
 inline void
-GeodesicAlgorithmExact::trace_back(SurfacePoint& destination, // trace back piecewise-linear path
-                                   std::vector<SurfacePoint>& path)
+GeodesicAlgorithmExact::trace_back(
+  const SurfacePoint& destination, // trace back piecewise-linear path
+  std::vector<SurfacePoint>& path)
 {
     path.clear();
     double best_total_distance;
@@ -1213,13 +1214,13 @@ GeodesicAlgorithmExact::trace_back(SurfacePoint& destination, // trace back piec
     }
 
     SurfacePoint& source = static_cast<SurfacePoint&>(m_sources[source_index]);
-    if (path.back().distance(&source) > 0) {
+    if (path.back().distance(source) > 0) {
         path.push_back(source);
     }
 }
 
 inline void
-GeodesicAlgorithmExact::print_statistics()
+GeodesicAlgorithmExact::print_statistics() const
 {
     GeodesicAlgorithmBase::print_statistics();
 

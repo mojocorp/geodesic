@@ -29,7 +29,7 @@ class Interval // interval of the edge
         UNDEFINED_DIRECTION
     };
 
-    double signal(double x) // geodesic distance function at point x
+    double signal(double x) const // geodesic distance function at point x
     {
         assert(x >= 0.0 && x <= m_edge->length());
 
@@ -40,12 +40,12 @@ class Interval // interval of the edge
             if (m_pseudo_y == 0.0) {
                 return m_d + std::abs(dx);
             } else {
-                return m_d + sqrt(dx * dx + m_pseudo_y * m_pseudo_y);
+                return m_d + std::sqrt(dx * dx + m_pseudo_y * m_pseudo_y);
             }
         }
     }
 
-    double max_distance(double end)
+    double max_distance(double end) const
     {
         if (m_d == GEODESIC_INF) {
             return GEODESIC_INF;
@@ -53,8 +53,8 @@ class Interval // interval of the edge
             double a = std::abs(m_start - m_pseudo_x);
             double b = std::abs(end - m_pseudo_x);
 
-            return a > b ? m_d + sqrt(a * a + m_pseudo_y * m_pseudo_y)
-                         : m_d + sqrt(b * b + m_pseudo_y * m_pseudo_y);
+            return a > b ? m_d + std::sqrt(a * a + m_pseudo_y * m_pseudo_y)
+                         : m_d + std::sqrt(b * b + m_pseudo_y * m_pseudo_y);
         }
     }
 
@@ -74,7 +74,7 @@ class Interval // interval of the edge
         }
     }
     // compare two intervals in the queue
-    bool operator()(interval_pointer const x, interval_pointer const y) const
+    bool operator()(const interval_pointer x, const interval_pointer y) const
     {
         if (x->min() != y->min()) {
             return x->min() < y->min();
@@ -85,18 +85,18 @@ class Interval // interval of the edge
         }
     }
 
-    double stop() // return the endpoint of the interval
+    double stop() const // return the endpoint of the interval
     {
         return m_next ? m_next->start() : m_edge->length();
     }
 
-    double hypotenuse(double a, double b) { return sqrt(a * a + b * b); }
+    double hypotenuse(double a, double b) const { return std::sqrt(a * a + b * b); }
 
-    void find_closest_point(
-      double const x,
-      double const y,
-      double& offset,
-      double& distance); // find the point on the interval that is closest to the point (alpha, s)
+    void find_closest_point(double const x,
+                            double const y,
+                            double& offset,
+                            double& distance)
+      const; // find the point on the interval that is closest to the point (alpha, s)
 
     double& start() { return m_start; }
     double& d() { return m_d; }
@@ -109,7 +109,9 @@ class Interval // interval of the edge
     bool visible_from_source() { return m_direction == FROM_SOURCE; }
     unsigned& source_index() { return m_source_index; }
 
-    void initialize(edge_pointer edge, SurfacePoint* point = nullptr, unsigned source_index = 0);
+    void initialize(edge_pointer edge,
+                    const SurfacePoint* point = nullptr,
+                    unsigned source_index = 0);
 
   protected:
     double m_start;    // initial point of the interval on the edge
@@ -147,7 +149,8 @@ class IntervalList // list of the of intervals of the given edge
         m_first = nullptr;
     }
 
-    interval_pointer covering_interval(double offset) // returns the interval that covers the offset
+    const interval_pointer covering_interval(
+      double offset) const // returns the interval that covers the offset
     {
         assert(offset >= 0.0 && offset <= m_edge->length());
 
@@ -159,10 +162,10 @@ class IntervalList // list of the of intervals of the given edge
         return p; // && p->start() <= offset ? p : NULL;
     }
 
-    void find_closest_point(SurfacePoint* point,
+    void find_closest_point(const SurfacePoint* point,
                             double& offset,
                             double& distance,
-                            interval_pointer& interval)
+                            interval_pointer& interval) const
     {
         interval_pointer p = m_first;
         distance = GEODESIC_INF;
@@ -185,7 +188,7 @@ class IntervalList // list of the of intervals of the given edge
         }
     }
 
-    unsigned number_of_intervals()
+    unsigned number_of_intervals() const
     {
         interval_pointer p = m_first;
         unsigned count = 0;
@@ -207,9 +210,9 @@ class IntervalList // list of the of intervals of the given edge
         return p;
     }
 
-    double signal(double x)
+    double signal(double x) const
     {
-        interval_pointer interval = covering_interval(x);
+        const interval_pointer interval = covering_interval(x);
 
         return interval ? interval->signal(x) : GEODESIC_INF;
     }
@@ -225,15 +228,16 @@ class IntervalList // list of the of intervals of the given edge
 class SurfacePointWithIndex : public SurfacePoint
 {
   public:
-    unsigned index() { return m_index; }
+    unsigned index() const { return m_index; }
 
-    void initialize(SurfacePoint& p, unsigned index)
+    void initialize(const SurfacePoint& p, unsigned index)
     {
         SurfacePoint::initialize(p);
         m_index = index;
     }
 
-    bool operator()(SurfacePointWithIndex* x, SurfacePointWithIndex* y) const // used for sorting
+    bool operator()(const SurfacePointWithIndex* x,
+                    const SurfacePointWithIndex* y) const // used for sorting
     {
         assert(x->type() != UNDEFINED_POINT && y->type() != UNDEFINED_POINT);
 
@@ -264,7 +268,7 @@ class SortedSources : public std::vector<SurfacePointWithIndex>
         return equal_range(m_sorted.begin(), m_sorted.end(), &m_search_dummy, m_compare_less);
     }
 
-    void initialize(std::vector<SurfacePoint>& sources) // we initialize the sources by copie
+    void initialize(const std::vector<SurfacePoint>& sources) // we initialize the sources by copie
     {
         resize(sources.size());
         m_sorted.resize(sources.size());
@@ -295,7 +299,7 @@ Interval::find_closest_point(
   double const rs,
   double const hs,
   double& r,
-  double& d_out) // find the point on the interval that is closest to the point (alpha, s)
+  double& d_out) const // find the point on the interval that is closest to the point (alpha, s)
 {
     if (m_d == GEODESIC_INF) {
         r = GEODESIC_INF;
@@ -336,7 +340,7 @@ Interval::find_closest_point(
 }
 
 inline void
-Interval::initialize(edge_pointer edge, SurfacePoint* source, unsigned source_index)
+Interval::initialize(edge_pointer edge, const SurfacePoint* source, unsigned source_index)
 {
     m_next = nullptr;
     // m_geodesic_previous = NULL;

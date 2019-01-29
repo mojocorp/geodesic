@@ -108,8 +108,8 @@ GeodesicAlgorithmDijkstraAlternative::best_source(
         for (unsigned i = 0; i < possible_vertices.size(); ++i) {
             vertex_pointer v = possible_vertices[i];
 
-            double distance_from_source = m_nodes[v->id()].distance_from_source();
-            double distance_from_dest = v->distance(&point);
+            const double distance_from_source = m_nodes[v->id()].distance_from_source();
+            const double distance_from_dest = v->distance(point);
             if (distance_from_source + distance_from_dest < best_source_distance) {
                 best_source_distance = distance_from_source + distance_from_dest;
                 min_vertex = v;
@@ -140,8 +140,8 @@ GeodesicAlgorithmDijkstraAlternative::trace_back(
         for (unsigned i = 0; i < possible_vertices.size(); ++i) {
             vertex_pointer v = possible_vertices[i];
 
-            double distance_from_source = m_nodes[v->id()].distance_from_source();
-            double distance_from_dest = v->distance(&destination);
+            const double distance_from_source = m_nodes[v->id()].distance_from_source();
+            const double distance_from_dest = v->distance(destination);
             if (distance_from_source + distance_from_dest < min_distance) {
                 min_distance = distance_from_source + distance_from_dest;
                 min_vertex = v;
@@ -189,7 +189,7 @@ GeodesicAlgorithmDijkstraAlternative::propagate(
         m_mesh->closest_vertices(s, &visible_vertices);
         for (unsigned j = 0; j < visible_vertices.size(); ++j) {
             vertex_pointer v = visible_vertices[j];
-            double distance = s->distance(v);
+            double distance = s->distance(*v);
 
             node_pointer node = &m_nodes[v->id()];
             if (distance < node->distance_from_source()) {

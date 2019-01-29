@@ -21,20 +21,20 @@ class GeodesicAlgorithmGraphBase : public GeodesicAlgorithmBase
     ~GeodesicAlgorithmGraphBase() {}
 
     void propagate(
-      std::vector<SurfacePoint>& sources,
+      const std::vector<SurfacePoint>& sources,
       double max_propagation_distance = GEODESIC_INF, // propagation algorithm stops after reaching
                                                       // the certain distance from the source
       std::vector<SurfacePoint>* stop_points =
         nullptr) override; // or after ensuring that all the stop_points are covered
 
-    void trace_back(SurfacePoint& destination, // trace back piecewise-linear path
+    void trace_back(const SurfacePoint& destination, // trace back piecewise-linear path
                     std::vector<SurfacePoint>& path) override;
 
-    unsigned best_source(SurfacePoint& point, // quickly find what source this point belongs to and
-                                              // what is the distance to this source
+    unsigned best_source(const SurfacePoint& point, // quickly find what source this point belongs
+                                                    // to and what is the distance to this source
                          double& best_source_distance) override;
 
-    void print_statistics() override
+    void print_statistics() const override
     {
         GeodesicAlgorithmBase::print_statistics();
 
@@ -48,9 +48,9 @@ class GeodesicAlgorithmGraphBase : public GeodesicAlgorithmBase
         return v->id();
     }
 
-    void set_sources(std::vector<SurfacePoint>& sources) { m_sources = sources; }
+    void set_sources(const std::vector<SurfacePoint>& sources) { m_sources = sources; }
 
-    node_pointer best_first_node(SurfacePoint& point, double& best_total_distance)
+    node_pointer best_first_node(const SurfacePoint& point, double& best_total_distance)
     {
         node_pointer best_node = NULL;
         if (point.type() == VERTEX) {
@@ -65,7 +65,7 @@ class GeodesicAlgorithmGraphBase : public GeodesicAlgorithmBase
             for (unsigned i = 0; i < possible_nodes.size(); ++i) {
                 node_pointer node = possible_nodes[i];
 
-                double distance_from_dest = node->distance(&point);
+                double distance_from_dest = node->distance(point);
                 if (node->distance_from_source() + distance_from_dest < best_total_distance) {
                     best_total_distance = node->distance_from_source() + distance_from_dest;
                     best_node = node;
@@ -108,7 +108,7 @@ class GeodesicAlgorithmGraphBase : public GeodesicAlgorithmBase
 template<class Node>
 void
 GeodesicAlgorithmGraphBase<Node>::propagate(
-  std::vector<SurfacePoint>& sources,
+  const std::vector<SurfacePoint>& sources,
   double max_propagation_distance,        // propagation algorithm stops after reaching the certain
                                           // distance from the source
   std::vector<SurfacePoint>* stop_points) // or after ensuring that all the stop_points are covered
@@ -126,8 +126,8 @@ GeodesicAlgorithmGraphBase<Node>::propagate(
 
     std::vector<node_pointer> visible_nodes; // initialize vertices directly visible from sources
     for (unsigned i = 0; i < m_sources.size(); ++i) {
-        SurfacePoint* source = &m_sources[i];
-        list_nodes_visible_from_source(source->base_element(), visible_nodes);
+        SurfacePoint& source = m_sources[i];
+        list_nodes_visible_from_source(source.base_element(), visible_nodes);
 
         for (unsigned j = 0; j < visible_nodes.size(); ++j) {
             node_pointer node = visible_nodes[j];
@@ -222,7 +222,7 @@ GeodesicAlgorithmGraphBase<Node>::check_stop_conditions(unsigned& index)
 template<class Node>
 inline void
 GeodesicAlgorithmGraphBase<Node>::trace_back(
-  SurfacePoint& destination, // trace back piecewise-linear path
+  const SurfacePoint& destination, // trace back piecewise-linear path
   std::vector<SurfacePoint>& path)
 {
     path.clear();
@@ -237,7 +237,7 @@ GeodesicAlgorithmGraphBase<Node>::trace_back(
 
     path.push_back(destination);
 
-    if (node->distance(&destination) > 1e-50) {
+    if (node->distance(destination) > 1e-50) {
         path.push_back(node->surface_point());
     }
 
@@ -249,7 +249,7 @@ GeodesicAlgorithmGraphBase<Node>::trace_back(
 
     SurfacePoint& source =
       m_sources[node->source_index()]; // add source to the path if it is not already there
-    if (node->distance(&source) > 1e-50) {
+    if (node->distance(source) > 1e-50) {
         path.push_back(source);
     }
 }
@@ -257,7 +257,7 @@ GeodesicAlgorithmGraphBase<Node>::trace_back(
 template<class Node>
 inline unsigned
 GeodesicAlgorithmGraphBase<Node>::best_source(
-  SurfacePoint&
+  const SurfacePoint&
     point, // quickly find what source this point belongs to and what is the distance to this source
   double& best_source_distance)
 {

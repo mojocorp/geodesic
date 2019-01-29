@@ -23,7 +23,7 @@ std::vector<geodesic::SurfacePoint> output_path;
 geodesic::OutputBuffer output_buffer, output_buffer1;
 
 std::size_t
-find_mesh_id(geodesic::Mesh* mesh)
+find_mesh_id(const geodesic::Mesh* mesh)
 {
     for (std::size_t i = 0; i < meshes.size(); ++i) {
         if (meshes[i].get() == mesh) {
