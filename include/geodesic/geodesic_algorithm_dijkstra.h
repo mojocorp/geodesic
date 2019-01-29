@@ -1,6 +1,5 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
-#ifndef GEODESIC_ALGORITHM_DIJKSTRA_010506
-#define GEODESIC_ALGORITHM_DIJKSTRA_010506
+#pragma once
 
 #include "geodesic_algorithm_graph_base.h"
 #include "geodesic_mesh_elements.h"
@@ -15,18 +14,18 @@ class DijkstraNode
     typedef DijkstraNode* node_pointer;
 
   public:
-    DijkstraNode(){};
-    ~DijkstraNode(){};
+    DijkstraNode() {}
+    ~DijkstraNode() {}
 
-    double& distance_from_source() { return m_distance; };
-    node_pointer& previous() { return m_previous; };
-    unsigned& source_index() { return m_source_index; };
-    vertex_pointer& vertex() { return m_vertex; };
+    double& distance_from_source() { return m_distance; }
+    node_pointer& previous() { return m_previous; }
+    unsigned& source_index() { return m_source_index; }
+    vertex_pointer& vertex() { return m_vertex; }
 
     void clear()
     {
         m_distance = GEODESIC_INF;
-        m_previous = NULL;
+        m_previous = nullptr;
     }
 
     bool operator()(node_pointer const s1, node_pointer const s2) const
@@ -34,7 +33,7 @@ class DijkstraNode
         return s1->distance_from_source() != s2->distance_from_source()
                  ? s1->distance_from_source() < s2->distance_from_source()
                  : s1->vertex()->id() < s2->vertex()->id();
-    };
+    }
 
     double distance(SurfacePoint* p) { return m_vertex->distance(p); }
 
@@ -62,9 +61,9 @@ class GeodesicAlgorithmDijkstra : public GeodesicAlgorithmGraphBase<DijkstraNode
         for (unsigned i = 0; i < m_nodes.size(); ++i) {
             m_nodes[i].vertex() = &m_mesh->vertices()[i];
         }
-    };
+    }
 
-    ~GeodesicAlgorithmDijkstra(){};
+    ~GeodesicAlgorithmDijkstra() {}
 
   protected:
     void list_nodes_visible_from_source(
@@ -127,5 +126,3 @@ GeodesicAlgorithmDijkstra::list_nodes_visible_from_node(
 }
 
 } // geodesic
-
-#endif // GEODESIC_ALGORITHM_DIJKSTRA_010506

@@ -1,6 +1,5 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
-#ifndef GEODESIC_ALGORITHM_SUBDIVISION_122806
-#define GEODESIC_ALGORITHM_SUBDIVISION_122806
+#pragma once
 
 #include "geodesic_algorithm_graph_base.h"
 #include "geodesic_mesh_elements.h"
@@ -15,30 +14,32 @@ class SubdivisionNode : public SurfacePoint
     typedef SubdivisionNode* node_pointer;
 
   public:
-    SubdivisionNode(){};
+    SubdivisionNode() {}
 
     template<class Pointer>
     SubdivisionNode(Pointer p)
       : SurfacePoint(p)
-      , m_previous(NULL)
-      , m_distance(0.0){};
+      , m_distance(0.0)
+      , m_previous(nullptr)
+    {}
 
     template<class Pointer, class Parameter>
     SubdivisionNode(Pointer p, Parameter param)
       : SurfacePoint(p, param)
-      , m_previous(NULL)
-      , m_distance(0.0){};
+      , m_distance(0.0)
+      , m_previous(nullptr)
+    {}
 
-    ~SubdivisionNode(){};
+    ~SubdivisionNode() {}
 
-    double& distance_from_source() { return m_distance; };
-    node_pointer& previous() { return m_previous; };
-    unsigned& source_index() { return m_source_index; };
+    double& distance_from_source() { return m_distance; }
+    node_pointer& previous() { return m_previous; }
+    unsigned& source_index() { return m_source_index; }
 
     void clear()
     {
         m_distance = GEODESIC_INF;
-        m_previous = NULL;
+        m_previous = nullptr;
     }
 
     bool operator()(node_pointer const s1, node_pointer const s2) const
@@ -70,9 +71,9 @@ class SubdivisionNode : public SurfacePoint
 
         assert(0);
         return true;
-    };
+    }
 
-    SurfacePoint& surface_point() { return static_cast<SurfacePoint&>(*this); };
+    SurfacePoint& surface_point() { return static_cast<SurfacePoint&>(*this); }
 
   private:
     double m_distance;       // distance to the closest source
@@ -85,7 +86,7 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
     typedef SubdivisionNode Node;
 
   public:
-    GeodesicAlgorithmSubdivision(geodesic::Mesh* mesh = NULL, unsigned subdivision_level = 0)
+    GeodesicAlgorithmSubdivision(geodesic::Mesh* mesh = nullptr, unsigned subdivision_level = 0)
       : GeodesicAlgorithmGraphBase<Node>(mesh)
     {
         m_type = SUBDIVISION;
@@ -97,11 +98,11 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
         }
 
         set_subdivision_level(subdivision_level);
-    };
+    }
 
-    ~GeodesicAlgorithmSubdivision(){};
+    ~GeodesicAlgorithmSubdivision() {}
 
-    unsigned subdivision_level() { return m_subdivision_level; };
+    unsigned subdivision_level() { return m_subdivision_level; }
 
     void set_subdivision_level(unsigned subdivision_level)
     {
@@ -113,11 +114,11 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
         for (unsigned i = 0; i < m_mesh->edges().size(); ++i) {
             edge_pointer e = &m_mesh->edges()[i];
             for (unsigned i = 0; i < subdivision_level; ++i) {
-                double offset = (double)(i + 1) / (double)(subdivision_level + 1);
+                double offset = double(i + 1) / double(subdivision_level + 1);
                 m_nodes.push_back(Node(e, offset));
             }
         }
-    };
+    }
 
   protected:
     void list_nodes_visible_from_source(
@@ -134,7 +135,7 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
     unsigned node_indexx(edge_pointer e)
     {
         return e->id() * m_subdivision_level + m_mesh->vertices().size();
-    };
+    }
 
   private:
     void list_nodes(MeshElementBase* p, // list nodes that belong to this mesh element
@@ -246,5 +247,3 @@ GeodesicAlgorithmSubdivision::list_nodes_visible_from_node(
 }
 
 } // geodesic
-
-#endif // GEODESIC_ALGORITHM_SUBDIVISION_122806

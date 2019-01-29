@@ -1,7 +1,6 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
 
-#ifndef GEODESIC_ALGORITHM_BASE_122806
-#define GEODESIC_ALGORITHM_BASE_122806
+#pragma once
 
 #include "geodesic_mesh.h"
 #include "geodesic_constants_and_simple_functions.h"
@@ -24,16 +23,17 @@ class GeodesicAlgorithmBase
     GeodesicAlgorithmBase(geodesic::Mesh* mesh)
       : m_type(UNDEFINED_ALGORITHM)
       , m_max_propagation_distance(1e100)
-      , m_mesh(mesh){};
+      , m_mesh(mesh)
+    {}
 
-    virtual ~GeodesicAlgorithmBase(){};
+    virtual ~GeodesicAlgorithmBase() {}
 
     virtual void propagate(
       std::vector<SurfacePoint>& sources,
       double max_propagation_distance = GEODESIC_INF, // propagation algorithm stops after reaching
                                                       // the certain distance from the source
       std::vector<SurfacePoint>* stop_points =
-        NULL) = 0; // or after ensuring that all the stop_points are covered
+        nullptr) = 0; // or after ensuring that all the stop_points are covered
 
     virtual void trace_back(SurfacePoint& destination, // trace back piecewise-linear path
                             std::vector<SurfacePoint>& path) = 0;
@@ -57,13 +57,13 @@ class GeodesicAlgorithmBase
                                     // step of the algorithm
     {
         std::cout << "propagation step took " << m_time_consumed << " seconds " << std::endl;
-    };
+    }
 
-    AlgorithmType type() { return m_type; };
+    AlgorithmType type() { return m_type; }
 
     virtual std::string name();
 
-    geodesic::Mesh* mesh() { return m_mesh; };
+    geodesic::Mesh* mesh() { return m_mesh; }
 
   protected:
     void set_stop_conditions(std::vector<SurfacePoint>* stop_points, double stop_distance);
@@ -142,7 +142,8 @@ GeodesicAlgorithmBase::geodesic(
 {
     double const max_propagation_distance = GEODESIC_INF;
 
-    propagate(sources, max_propagation_distance,
+    propagate(sources,
+              max_propagation_distance,
               &destinations); // we use desinations as stop points
 
     paths.resize(destinations.size());
@@ -172,7 +173,7 @@ GeodesicAlgorithmBase::set_stop_conditions(std::vector<SurfacePoint>* stop_point
         possible_vertices.clear();
         m_mesh->closest_vertices(point, &possible_vertices);
 
-        vertex_pointer closest_vertex = NULL;
+        vertex_pointer closest_vertex = nullptr;
         double min_distance = 1e100;
         for (unsigned j = 0; j < possible_vertices.size(); ++j) {
             double distance = point->distance(possible_vertices[j]);
@@ -189,5 +190,3 @@ GeodesicAlgorithmBase::set_stop_conditions(std::vector<SurfacePoint>* stop_point
 }
 
 } // geodesic
-
-#endif // GEODESIC_ALGORITHM_BASE_122806

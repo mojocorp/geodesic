@@ -1,6 +1,5 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
-#ifndef GEODESIC_MESH_20071231
-#define GEODESIC_MESH_20071231
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -24,9 +23,9 @@ struct edge_visible_from_source
 class Mesh
 {
   public:
-    Mesh(){};
+    Mesh() {}
 
-    ~Mesh(){};
+    ~Mesh() {}
 
     template<class Points, class Faces>
     void initialize_mesh_data(unsigned num_vertices,
@@ -38,13 +37,13 @@ class Mesh
     void initialize_mesh_data(Points& p,
                               Faces& tri); // build mesh from regular point-triangle representation
 
-    std::vector<Vertex>& vertices() { return m_vertices; };
-    std::vector<Edge>& edges() { return m_edges; };
-    std::vector<Face>& faces() { return m_faces; };
+    std::vector<Vertex>& vertices() { return m_vertices; }
+    std::vector<Edge>& edges() { return m_edges; }
+    std::vector<Face>& faces() { return m_faces; }
 
     unsigned closest_vertices(
       SurfacePoint* p,
-      std::vector<vertex_pointer>* storage = NULL); // list vertices closest to the point
+      std::vector<vertex_pointer>* storage = nullptr); // list vertices closest to the point
 
   private:
     void build_adjacencies(); // build internal structure of the mesh
@@ -469,5 +468,3 @@ fill_surface_point_double(geodesic::SurfacePoint* point, double* data, long mesh
 }
 
 } // geodesic
-
-#endif

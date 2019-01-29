@@ -1,6 +1,5 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
-#ifndef GEODESIC_ALGORITHM_DIJKSTRA_ALTERNATIVE_010506
-#define GEODESIC_ALGORITHM_DIJKSTRA_ALTERNATIVE_010506
+#pragma once
 
 #include "geodesic_algorithm_base.h"
 #include "geodesic_mesh_elements.h"
@@ -15,18 +14,18 @@ class DijkstraNode1
     typedef DijkstraNode1* node_pointer;
 
   public:
-    DijkstraNode1(){};
-    ~DijkstraNode1(){};
+    DijkstraNode1() {}
+    ~DijkstraNode1() {}
 
-    double& distance_from_source() { return m_distance; };
-    node_pointer& previous() { return m_previous; };
-    unsigned& source_index() { return m_source_index; };
-    vertex_pointer& vertex() { return m_vertex; };
+    double& distance_from_source() { return m_distance; }
+    node_pointer& previous() { return m_previous; }
+    unsigned& source_index() { return m_source_index; }
+    vertex_pointer& vertex() { return m_vertex; }
 
     void clear()
     {
         m_distance = GEODESIC_INF;
-        m_previous = NULL;
+        m_previous = nullptr;
     }
 
     bool operator()(node_pointer const s1, node_pointer const s2) const
@@ -34,7 +33,7 @@ class DijkstraNode1
         return s1->distance_from_source() != s2->distance_from_source()
                  ? s1->distance_from_source() < s2->distance_from_source()
                  : s1->vertex()->id() < s2->vertex()->id();
-    };
+    }
 
   private:
     double m_distance;       // distance to the closest source
@@ -49,7 +48,7 @@ class GeodesicAlgorithmDijkstraAlternative : public GeodesicAlgorithmBase
     typedef DijkstraNode1 Node;
     typedef Node* node_pointer;
 
-    GeodesicAlgorithmDijkstraAlternative(geodesic::Mesh* mesh = NULL)
+    GeodesicAlgorithmDijkstraAlternative(geodesic::Mesh* mesh = nullptr)
       : GeodesicAlgorithmBase(mesh)
       , m_nodes(mesh->vertices().size())
     {
@@ -57,16 +56,16 @@ class GeodesicAlgorithmDijkstraAlternative : public GeodesicAlgorithmBase
         for (unsigned i = 0; i < m_nodes.size(); ++i) {
             m_nodes[i].vertex() = &m_mesh->vertices()[i];
         }
-    };
+    }
 
-    ~GeodesicAlgorithmDijkstraAlternative(){};
+    ~GeodesicAlgorithmDijkstraAlternative() {}
 
     virtual void propagate(
       std::vector<SurfacePoint>& sources,
       double max_propagation_distance = GEODESIC_INF, // propagation algorithm stops after reaching
                                                       // the certain distance from the source
       std::vector<SurfacePoint>* stop_points =
-        NULL); // or after ensuring that all the stop_points are covered
+        nullptr); // or after ensuring that all the stop_points are covered
 
     virtual void trace_back(SurfacePoint& destination, // trace back piecewise-linear path
                             std::vector<SurfacePoint>& path);
@@ -95,7 +94,7 @@ GeodesicAlgorithmDijkstraAlternative::best_source(
   double& best_source_distance)
 {
     if (point.type() == VERTEX) {
-        vertex_pointer v = (vertex_pointer)point.base_element();
+        vertex_pointer v = vertex_pointer(point.base_element());
         node_pointer node = &m_nodes[v->id()];
         best_source_distance = node->distance_from_source();
         return node->source_index();
@@ -105,7 +104,7 @@ GeodesicAlgorithmDijkstraAlternative::best_source(
         m_mesh->closest_vertices(&point, &possible_vertices);
 
         best_source_distance = GEODESIC_INF;
-        vertex_pointer min_vertex = NULL;
+        vertex_pointer min_vertex = nullptr;
         for (unsigned i = 0; i < possible_vertices.size(); ++i) {
             vertex_pointer v = possible_vertices[i];
 
@@ -137,7 +136,7 @@ GeodesicAlgorithmDijkstraAlternative::trace_back(
         m_mesh->closest_vertices(&destination, &possible_vertices);
 
         double min_distance = GEODESIC_INF;
-        vertex_pointer min_vertex = NULL;
+        vertex_pointer min_vertex = nullptr;
         for (unsigned i = 0; i < possible_vertices.size(); ++i) {
             vertex_pointer v = possible_vertices[i];
 
@@ -169,8 +168,8 @@ GeodesicAlgorithmDijkstraAlternative::trace_back(
 inline void
 GeodesicAlgorithmDijkstraAlternative::propagate(
   std::vector<SurfacePoint>& sources,
-  double max_propagation_distance, // propagation algorithm stops after reaching the certain
-                                   // distance from the source
+  double max_propagation_distance,        // propagation algorithm stops after reaching the certain
+                                          // distance from the source
   std::vector<SurfacePoint>* stop_points) // or after ensuring that all the stop_points are covered
 {
     set_stop_conditions(stop_points, max_propagation_distance);
@@ -196,7 +195,7 @@ GeodesicAlgorithmDijkstraAlternative::propagate(
             if (distance < node->distance_from_source()) {
                 node->distance_from_source() = distance;
                 node->source_index() = i;
-                node->previous() = NULL;
+                node->previous() = nullptr;
             }
         }
         visible_vertices.clear();
@@ -277,5 +276,3 @@ GeodesicAlgorithmDijkstraAlternative::check_stop_conditions(unsigned& index)
 }
 
 } // geodesic
-
-#endif // GEODESIC_ALGORITHM_DIJKSTRA_ALTERNATIVE_010506

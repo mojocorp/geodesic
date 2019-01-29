@@ -1,6 +1,5 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
-#ifndef GEODESIC_CONSTANTS_20071231
-#define GEODESIC_CONSTANTS_20071231
+#pragma once
 
 // some constants and simple math functions
 
@@ -77,4 +76,3 @@ read_mesh_from_file(const char* filename, Points& points, Faces& faces)
 
 } // geodesic
 
-#endif // GEODESIC_CONSTANTS_20071231

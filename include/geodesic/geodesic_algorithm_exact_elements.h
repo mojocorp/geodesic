@@ -1,6 +1,5 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
-#ifndef GEODESIC_ALGORITHM_EXACT_ELEMENTS_20071231
-#define GEODESIC_ALGORITHM_EXACT_ELEMENTS_20071231
+#pragma once
 
 #include "geodesic_memory.h"
 #include "geodesic_mesh_elements.h"
@@ -19,8 +18,8 @@ typedef IntervalList* list_pointer;
 class Interval // interval of the edge
 {
   public:
-    Interval(){};
-    ~Interval(){};
+    Interval() {}
+    ~Interval() {}
 
     enum DirectionType
     {
@@ -99,18 +98,18 @@ class Interval // interval of the edge
       double& offset,
       double& distance); // find the point on the interval that is closest to the point (alpha, s)
 
-    double& start() { return m_start; };
-    double& d() { return m_d; };
-    double& pseudo_x() { return m_pseudo_x; };
-    double& pseudo_y() { return m_pseudo_y; };
-    double& min() { return m_min; };
-    interval_pointer& next() { return m_next; };
-    edge_pointer& edge() { return m_edge; };
-    DirectionType& direction() { return m_direction; };
-    bool visible_from_source() { return m_direction == FROM_SOURCE; };
-    unsigned& source_index() { return m_source_index; };
+    double& start() { return m_start; }
+    double& d() { return m_d; }
+    double& pseudo_x() { return m_pseudo_x; }
+    double& pseudo_y() { return m_pseudo_y; }
+    double& min() { return m_min; }
+    interval_pointer& next() { return m_next; }
+    edge_pointer& edge() { return m_edge; }
+    DirectionType& direction() { return m_direction; }
+    bool visible_from_source() { return m_direction == FROM_SOURCE; }
+    unsigned& source_index() { return m_source_index; }
 
-    void initialize(edge_pointer edge, SurfacePoint* point = NULL, unsigned source_index = 0);
+    void initialize(edge_pointer edge, SurfacePoint* point = nullptr, unsigned source_index = 0);
 
   protected:
     double m_start;    // initial point of the interval on the edge
@@ -128,7 +127,7 @@ class Interval // interval of the edge
 struct IntervalWithStop : public Interval
 {
   public:
-    double& stop() { return m_stop; };
+    double& stop() { return m_stop; }
 
   protected:
     double m_stop;
@@ -137,16 +136,16 @@ struct IntervalWithStop : public Interval
 class IntervalList // list of the of intervals of the given edge
 {
   public:
-    IntervalList() { m_first = NULL; };
-    ~IntervalList(){};
+    IntervalList() { m_first = nullptr; }
+    ~IntervalList() {}
 
-    void clear() { m_first = NULL; };
+    void clear() { m_first = nullptr; }
 
     void initialize(edge_pointer e)
     {
         m_edge = e;
-        m_first = NULL;
-    };
+        m_first = nullptr;
+    }
 
     interval_pointer covering_interval(double offset) // returns the interval that covers the offset
     {
@@ -158,7 +157,7 @@ class IntervalList // list of the of intervals of the given edge
         }
 
         return p; // && p->start() <= offset ? p : NULL;
-    };
+    }
 
     void find_closest_point(SurfacePoint* point,
                             double& offset,
@@ -167,7 +166,7 @@ class IntervalList // list of the of intervals of the given edge
     {
         interval_pointer p = m_first;
         distance = GEODESIC_INF;
-        interval = NULL;
+        interval = nullptr;
 
         double x, y;
         m_edge->local_coordinates(point, x, y);
@@ -184,7 +183,7 @@ class IntervalList // list of the of intervals of the given edge
             }
             p = p->next();
         }
-    };
+    }
 
     unsigned number_of_intervals()
     {
@@ -215,8 +214,8 @@ class IntervalList // list of the of intervals of the given edge
         return interval ? interval->signal(x) : GEODESIC_INF;
     }
 
-    interval_pointer& first() { return m_first; };
-    edge_pointer& edge() { return m_edge; };
+    interval_pointer& first() { return m_first; }
+    edge_pointer& edge() { return m_edge; }
 
   private:
     interval_pointer m_first; // pointer to the first member of the list
@@ -226,7 +225,7 @@ class IntervalList // list of the of intervals of the given edge
 class SurfacePointWithIndex : public SurfacePoint
 {
   public:
-    unsigned index() { return m_index; };
+    unsigned index() { return m_index; }
 
     void initialize(SurfacePoint& p, unsigned index)
     {
@@ -277,7 +276,7 @@ class SortedSources : public std::vector<SurfacePointWithIndex>
         }
 
         std::sort(m_sorted.begin(), m_sorted.end(), m_compare_less);
-    };
+    }
 
     SurfacePointWithIndex& operator[](unsigned i)
     {
@@ -339,7 +338,7 @@ Interval::find_closest_point(
 inline void
 Interval::initialize(edge_pointer edge, SurfacePoint* source, unsigned source_index)
 {
-    m_next = NULL;
+    m_next = nullptr;
     // m_geodesic_previous = NULL;
     m_direction = UNDEFINED_DIRECTION;
     m_edge = edge;
@@ -375,5 +374,3 @@ Interval::initialize(edge_pointer edge, SurfacePoint* source, unsigned source_in
 }
 
 } // geodesic
-
-#endif // GEODESIC_ALGORITHM_EXACT_ELEMENTS_20071231

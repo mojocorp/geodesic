@@ -1,8 +1,11 @@
-#ifndef GEODESIC_DLL_HEADER_HPP_234232
-#define GEODESIC_DLL_HEADER_HPP_234232
+#pragma once
 
 #ifndef GEODESIC_DLL_IMPORT
+#ifdef _WIN32
+#define GEODESIC_DLL_IMPORT __declspec(dllimport)
+#else
 #define GEODESIC_DLL_IMPORT
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -55,4 +58,3 @@ extern "C"
 }
 #endif
 
-#endif

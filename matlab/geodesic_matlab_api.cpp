@@ -13,10 +13,10 @@
 #include "geodesic_algorithm_exact.h"
 #include "geodesic_matlab_api.h"
 
-typedef std::shared_ptr<geodesic::Mesh> mesh_shared_pointer;
+using mesh_shared_pointer = std::shared_ptr<geodesic::Mesh>;
 std::vector<mesh_shared_pointer> meshes;
 
-typedef std::shared_ptr<geodesic::GeodesicAlgorithmBase> algorithm_shared_pointer;
+using algorithm_shared_pointer = std::shared_ptr<geodesic::GeodesicAlgorithmBase>;
 std::vector<algorithm_shared_pointer> algorithms;
 
 std::vector<geodesic::SurfacePoint> output_path;
