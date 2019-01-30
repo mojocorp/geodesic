@@ -1,4 +1,17 @@
 cmake_minimum_required(VERSION 3.1.0)
+project(geodesic)
+
+find_package(Git REQUIRED)
+
+execute_process(
+    COMMAND ${GIT_EXECUTABLE} describe --always --tags
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GEODESIC_VERSION
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+message( STATUS "VERSION: ${GEODESIC_VERSION}")
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -46,8 +59,9 @@ install(FILES tests/flat_triangular_mesh.txt tests/hedgehog_mesh.txt DESTINATION
 #################################################################################
 # CPACK
 #################################################################################
-set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VENDOR "mojocorp")
+set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION ${GEODESIC_VERSION})
+set(CPACK_PACKAGE_VENDOR "com.github.mojocorp")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Multiple source/target exact geodesic (shortest path) algorithm for triangular mesh (triangulated 2D surface in 3D)")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
 
