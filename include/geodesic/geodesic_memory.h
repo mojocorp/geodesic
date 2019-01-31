@@ -125,47 +125,4 @@ class MemoryAllocator
     std::vector<pointer> m_deleted; // pointers to deleted elemets
 };
 
-class OutputBuffer
-{
-  public:
-    OutputBuffer()
-      : m_num_bytes(0)
-    {}
-
-    void clear()
-    {
-        m_num_bytes = 0;
-        m_buffer = std::unique_ptr<double>();
-    }
-
-    template<class T>
-    T* allocate(size_t n)
-    {
-        double wanted = n * sizeof(T);
-        if (wanted > m_num_bytes) {
-            size_t new_size = size_t(ceil(wanted / double(sizeof(double))));
-            m_buffer = std::unique_ptr<double>(new double[new_size]);
-            m_num_bytes = new_size * sizeof(double);
-        }
-
-        return (T*)m_buffer.get();
-    }
-
-    template<class T>
-    T* get()
-    {
-        return (T*)m_buffer.get();
-    }
-
-    template<class T>
-    size_t capacity() const
-    {
-        return size_t(floor(double(m_num_bytes) / double(sizeof(T))));
-    }
-
-  private:
-    std::unique_ptr<double> m_buffer;
-    size_t m_num_bytes;
-};
-
 } // geodesic

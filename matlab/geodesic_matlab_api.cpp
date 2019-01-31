@@ -13,14 +13,45 @@
 #include "geodesic_algorithm_exact.h"
 #include "geodesic_matlab_api.h"
 
+class OutputBuffer
+{
+  public:
+    OutputBuffer()
+      : m_num_bytes(0)
+    {}
+
+    template<class T>
+    T* allocate(size_t n)
+    {
+        double wanted = n * sizeof(T);
+        if (wanted > m_num_bytes) {
+            size_t new_size = size_t(ceil(wanted / double(sizeof(double))));
+            m_buffer = std::unique_ptr<double>(new double[new_size]);
+            m_num_bytes = new_size * sizeof(double);
+        }
+
+        return (T*)m_buffer.get();
+    }
+
+    template<class T>
+    T* get()
+    {
+        return (T*)m_buffer.get();
+    }
+
+  private:
+    std::unique_ptr<double> m_buffer;
+    size_t m_num_bytes;
+};
+
 using mesh_shared_pointer = std::shared_ptr<geodesic::Mesh>;
-std::vector<mesh_shared_pointer> meshes;
+static std::vector<mesh_shared_pointer> meshes;
 
 using algorithm_shared_pointer = std::shared_ptr<geodesic::GeodesicAlgorithmBase>;
-std::vector<algorithm_shared_pointer> algorithms;
+static std::vector<algorithm_shared_pointer> algorithms;
 
-std::vector<geodesic::SurfacePoint> output_path;
-geodesic::OutputBuffer output_buffer, output_buffer1;
+static std::vector<geodesic::SurfacePoint> output_path;
+static OutputBuffer output_buffer, output_buffer1;
 
 std::size_t
 find_mesh_id(const geodesic::Mesh* mesh)
