@@ -41,7 +41,7 @@ install(FILES $<TARGET_PROPERTY:geodesic,INTERFACE_SOURCES> DESTINATION include)
 add_library(geodesic_matlab SHARED matlab/geodesic_matlab_api.h matlab/geodesic_matlab_api.cpp)
 target_link_libraries(geodesic_matlab geodesic)
 install(TARGETS geodesic_matlab DESTINATION matlab)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/matlab/ DESTINATION matlab FILES_MATCHING PATTERN "*.m")
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/matlab/examples/ DESTINATION matlab FILES_MATCHING PATTERN "*.m")
 
 #################################################################################
 # TESTS
