@@ -52,7 +52,7 @@ class GeodesicAlgorithmGraphBase : public GeodesicAlgorithmBase
 
     node_pointer best_first_node(const SurfacePoint& point, double& best_total_distance)
     {
-        node_pointer best_node = NULL;
+        node_pointer best_node = nullptr;
         if (point.type() == VERTEX) {
             vertex_pointer v = vertex_pointer(point.base_element());
             best_node = &m_nodes[node_index(v)];
@@ -78,7 +78,7 @@ class GeodesicAlgorithmGraphBase : public GeodesicAlgorithmBase
         if (best_total_distance > m_propagation_distance_stopped) // result is unreliable
         {
             best_total_distance = GEODESIC_INF;
-            return NULL;
+            return nullptr;
         } else {
             return best_node;
         }
@@ -135,7 +135,7 @@ GeodesicAlgorithmGraphBase<Node>::propagate(
             if (distance < node->distance_from_source()) {
                 node->distance_from_source() = distance;
                 node->source_index() = i;
-                node->previous() = NULL;
+                node->previous() = nullptr;
             }
         }
         visible_nodes.clear();

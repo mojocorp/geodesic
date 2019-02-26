@@ -661,7 +661,7 @@ GeodesicAlgorithmExact::update_list_and_queue(list_pointer list,
                                               unsigned num_candidates)
 {
     assert(num_candidates <= 2);
-    // assert(list->first() != NULL);
+    // assert(list->first() != nullptr);
     edge_pointer edge = list->edge();
     double const local_epsilon = SMALLEST_INTERVAL_RATIO * edge->length();
 

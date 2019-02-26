@@ -159,7 +159,7 @@ class IntervalList // list of the of intervals of the given edge
             p = p->next();
         }
 
-        return p; // && p->start() <= offset ? p : NULL;
+        return p; // && p->start() <= offset ? p : nullptr;
     }
 
     void find_closest_point(const SurfacePoint* point,
@@ -343,7 +343,7 @@ inline void
 Interval::initialize(edge_pointer edge, const SurfacePoint* source, unsigned source_index)
 {
     m_next = nullptr;
-    // m_geodesic_previous = NULL;
+    // m_geodesic_previous = nullptr;
     m_direction = UNDEFINED_DIRECTION;
     m_edge = edge;
     m_source_index = source_index;

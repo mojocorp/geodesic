@@ -41,7 +41,7 @@ class SimpleVector   // for efficiency, it uses an outside memory allocator
     template<class DataPointer>
     void set_allocation(DataPointer begin, size_t size)
     {
-        assert(begin != NULL || size == 0);
+        assert(begin != nullptr || size == 0);
         m_size = size;
         m_begin = (iterator)begin;
     }
@@ -61,7 +61,7 @@ class SimpleVector   // for efficiency, it uses an outside memory allocator
     void clear()
     {
         m_size = 0;
-        m_begin = NULL;
+        m_begin = nullptr;
     }
 
   private:
