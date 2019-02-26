@@ -6,12 +6,14 @@ branches:
 
 matrix:
   include:
-  - compiler: gcc
-    os: linux
+  - os: linux
     dist: trusty
-  - compiler: clang
-    os: osx
+    compiler: gcc
+  - os: osx
+    compiler: clang
     env: MACOSX_DEPLOYMENT_TARGET=10.11
+  - os: windows
+    env: PATH="/c/Program Files/CMake/bin/:$PATH"
 
 before_install:
  - transfer() { curl --progress-bar --upload-file "$1" "https://transfer.sh/$1"; }
