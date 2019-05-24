@@ -11,17 +11,17 @@
 namespace geodesic {
 
 template<class T> // quickly allocates multiple elements of a given type; no deallocation
-class SimlpeMemoryAllocator
+class SimpleMemoryAllocator
 {
   public:
     typedef T* pointer;
 
-    SimlpeMemoryAllocator(size_t block_size = 0, size_t max_number_of_blocks = 0)
+    SimpleMemoryAllocator(size_t block_size = 0, size_t max_number_of_blocks = 0)
     {
         reset(block_size, max_number_of_blocks);
     }
 
-    ~SimlpeMemoryAllocator() {}
+    ~SimpleMemoryAllocator() {}
 
     void reset(unsigned block_size, unsigned max_number_of_blocks)
     {

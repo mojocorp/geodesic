@@ -58,7 +58,7 @@ class Mesh
     std::vector<Edge> m_edges;
     std::vector<Face> m_faces;
 
-    SimlpeMemoryAllocator<void_pointer>
+    SimpleMemoryAllocator<void_pointer>
       m_pointer_allocator; // fast memory allocating for Face/Vertex/Edge cross-references
 };
 

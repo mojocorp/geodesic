@@ -14,10 +14,6 @@ matrix:
     env: MACOSX_DEPLOYMENT_TARGET=10.11
   - os: windows
     env: PATH="/c/Program Files/CMake/bin/:$PATH"
-
-before_install:
- - transfer() { curl --progress-bar --upload-file "$1" "https://transfer.sh/$1"; }
-install:
  
 script:
 - mkdir -p build
@@ -25,5 +21,3 @@ script:
 - cmake -DCMAKE_INSTALL_PREFIX=installed -DCMAKE_BUILD_TYPE=Release ..
 - cmake --build . --config Release --target install
 - cpack -G ZIP
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then transfer geodesic-*-Linux.zip; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then transfer geodesic-*-Darwin.zip; fi
