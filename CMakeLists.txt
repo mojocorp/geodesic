@@ -33,7 +33,6 @@ target_sources(geodesic_interface INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_graph_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_subdivision.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_constants_and_simple_functions.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_memory.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_mesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_mesh_elements.h
 )

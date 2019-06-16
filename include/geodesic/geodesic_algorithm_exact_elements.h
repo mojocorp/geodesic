@@ -1,7 +1,6 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
 #pragma once
 
-#include "geodesic_memory.h"
 #include "geodesic_mesh_elements.h"
 #include <vector>
 #include <cmath>

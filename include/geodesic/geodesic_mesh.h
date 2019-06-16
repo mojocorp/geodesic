@@ -9,7 +9,6 @@
 #include <fstream>
 
 #include "geodesic_mesh_elements.h"
-#include "geodesic_memory.h"
 #include "geodesic_constants_and_simple_functions.h"
 
 namespace geodesic {
@@ -51,15 +50,9 @@ class Mesh
     void build_adjacencies(); // build internal structure of the mesh
     bool verify();            // verifies connectivity of the mesh and prints some debug info
 
-    typedef void* void_pointer;
-    void_pointer allocate_pointers(unsigned n) { return m_pointer_allocator.allocate(n); }
-
     std::vector<Vertex> m_vertices;
     std::vector<Edge> m_edges;
     std::vector<Face> m_faces;
-
-    SimpleMemoryAllocator<void_pointer>
-      m_pointer_allocator; // fast memory allocating for Face/Vertex/Edge cross-references
 };
 
 inline unsigned
@@ -74,10 +67,10 @@ Mesh::closest_vertices(const SurfacePoint* p, std::vector<vertex_pointer>* stora
         return 1;
     } else if (p->type() == FACE) {
         if (storage) {
-            const vertex_pointer* vp = p->base_element()->adjacent_vertices().begin();
-            storage->push_back(*vp);
-            storage->push_back(*(vp + 1));
-            storage->push_back(*(vp + 2));
+            const vertex_pointer vp = p->base_element()->adjacent_vertices().front();
+            storage->push_back(vp);
+            storage->push_back((vp + 1));
+            storage->push_back((vp + 2));
         }
         return 2;
     } else if (p->type() == EDGE) // for edge include all 4 adjacent vertices
@@ -121,11 +114,6 @@ Mesh::initialize_mesh_data(unsigned num_vertices,
                            unsigned num_faces,
                            const Faces& tri)
 {
-    unsigned const approximate_number_of_internal_pointers = (num_vertices + num_faces) * 4;
-    unsigned const max_number_of_pointer_blocks = 100;
-    m_pointer_allocator.reset(approximate_number_of_internal_pointers,
-                              max_number_of_pointer_blocks);
-
     m_vertices.resize(num_vertices);
     for (unsigned i = 0; i < num_vertices; ++i) // copy coordinates to vertices
     {
@@ -141,8 +129,7 @@ Mesh::initialize_mesh_data(unsigned num_vertices,
     {
         Face& f = m_faces[i];
         f.id() = i;
-        f.adjacent_vertices().set_allocation(allocate_pointers(3),
-                                             3); // allocate three units of memory
+        f.adjacent_vertices().resize(3); // allocate three units of memory
 
         unsigned shift = 3 * i;
         for (unsigned j = 0; j < 3; ++j) {
@@ -174,9 +161,7 @@ Mesh::build_adjacencies()
         Vertex& v = m_vertices[i];
         unsigned num_adjacent_faces = count[i];
 
-        v.adjacent_faces().set_allocation(
-          allocate_pointers(num_adjacent_faces), // allocate three units of memory
-          num_adjacent_faces);
+        v.adjacent_faces().resize(num_adjacent_faces);
     }
 
     std::fill(count.begin(), count.end(), 0);
@@ -226,8 +211,7 @@ Mesh::build_adjacencies()
         Edge& e = m_edges[edge_id];
         e.id() = edge_id++;
 
-        e.adjacent_vertices().set_allocation(allocate_pointers(2),
-                                             2); // allocate two units of memory
+        e.adjacent_vertices().resize(2); // allocate two units of memory
 
         e.adjacent_vertices()[0] = &m_vertices[half_edges[i].vertex_0];
         e.adjacent_vertices()[1] = &m_vertices[half_edges[i].vertex_1];
@@ -237,14 +221,13 @@ Mesh::build_adjacencies()
 
         if (i != half_edges.size() - 1 && half_edges[i] == half_edges[i + 1]) // double edge
         {
-            e.adjacent_faces().set_allocation(allocate_pointers(2), 2);
+            e.adjacent_faces().resize(2);
             e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
             e.adjacent_faces()[1] = &m_faces[half_edges[i + 1].face_id];
             i += 2;
         } else // single edge
         {
-            e.adjacent_faces().set_allocation(allocate_pointers(1),
-                                              1); // one adjucent faces
+            e.adjacent_faces().resize(1); // one adjucent faces
             e.adjacent_faces()[0] = &m_faces[half_edges[i].face_id];
             i += 1;
         }
@@ -259,7 +242,7 @@ Mesh::build_adjacencies()
         count[e.adjacent_vertices()[1]->id()]++;
     }
     for (unsigned i = 0; i < m_vertices.size(); ++i) {
-        m_vertices[i].adjacent_edges().set_allocation(allocate_pointers(count[i]), count[i]);
+        m_vertices[i].adjacent_edges().resize(count[i]);
     }
     std::fill(count.begin(), count.end(), 0);
     for (unsigned i = 0; i < m_edges.size(); ++i) {
@@ -272,7 +255,7 @@ Mesh::build_adjacencies()
 
     //			Faces->adjacent Edges
     for (unsigned i = 0; i < m_faces.size(); ++i) {
-        m_faces[i].adjacent_edges().set_allocation(allocate_pointers(3), 3);
+        m_faces[i].adjacent_edges().resize(3);
     }
 
     count.resize(m_faces.size());

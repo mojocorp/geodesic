@@ -1,7 +1,6 @@
 // Copyright (C) 2008 Danil Kirsanov, MIT License
 #pragma once
 
-#include "geodesic_memory.h"
 #include "geodesic_algorithm_base.h"
 #include "geodesic_algorithm_exact_elements.h"
 #include <vector>
@@ -17,7 +16,6 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
   public:
     GeodesicAlgorithmExact(geodesic::Mesh* mesh)
       : GeodesicAlgorithmBase(mesh)
-      , m_memory_allocator(mesh->edges().size(), mesh->edges().size())
       , m_edge_interval_lists(mesh->edges().size())
     {
         m_type = EXACT;
@@ -94,7 +92,6 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
 
     void clear()
     {
-        m_memory_allocator.clear();
         m_queue.clear();
         for (unsigned i = 0; i < m_edge_interval_lists.size(); ++i) {
             m_edge_interval_lists[i].clear();
@@ -126,7 +123,6 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
 
     IntervalQueue m_queue; // interval queue
 
-    MemoryAllocator<Interval> m_memory_allocator;    // quickly allocate and deallocate intervals
     std::vector<IntervalList> m_edge_interval_lists; // every edge has its interval data
 
     enum MapType
@@ -689,25 +685,25 @@ GeodesicAlgorithmExact::update_list_and_queue(list_pointer list,
         }
 
         if (first->start() > 0.0) {
-            *p = m_memory_allocator.allocate();
+            *p = new Interval;
             (*p)->initialize(edge);
             p = &(*p)->next();
         }
 
-        *p = m_memory_allocator.allocate();
+        *p = new Interval;
         std::memcpy(*p, first, sizeof(Interval));
         m_queue.insert(*p);
 
         if (num_candidates == 2) {
             p = &(*p)->next();
-            *p = m_memory_allocator.allocate();
+            *p = new Interval;
             std::memcpy(*p, second, sizeof(Interval));
             m_queue.insert(*p);
         }
 
         if (second->stop() < edge->length()) {
             p = &(*p)->next();
-            *p = m_memory_allocator.allocate();
+            *p = new Interval;
             (*p)->initialize(edge);
             (*p)->start() = second->stop();
         } else {
@@ -753,7 +749,7 @@ GeodesicAlgorithmExact::update_list_and_queue(list_pointer list,
                 {
                     previous->next() = p->next();
                     erase_from_queue(p);
-                    m_memory_allocator.deallocate(p);
+                    delete p;
 
                     p = previous->next();
                 } else // p becomes "previous"
@@ -779,7 +775,7 @@ GeodesicAlgorithmExact::update_list_and_queue(list_pointer list,
 
             for (unsigned j = 1; j < N; ++j) // no memory is needed for the first one
             {
-                i_new[j] = m_memory_allocator.allocate(); // create new intervals
+                i_new[j] = new Interval; // create new intervals
             }
 
             if (map[0] == OLD) // finish previous, if any
@@ -797,7 +793,7 @@ GeodesicAlgorithmExact::update_list_and_queue(list_pointer list,
             {
                 i_new[0] = previous;
                 previous->next() = i_new[1];
-                m_memory_allocator.deallocate(p);
+                delete p;
                 previous = nullptr;
             } else // p becomes "previous"
             {

@@ -23,52 +23,6 @@ typedef Face* face_pointer;
 typedef Mesh* mesh_pointer;
 typedef MeshElementBase* base_pointer;
 
-template<class Data> // simple vector that stores info about mesh references
-class SimpleVector   // for efficiency, it uses an outside memory allocator
-{
-  public:
-    SimpleVector()
-      : m_size(0)
-      , m_begin(nullptr)
-    {}
-
-    typedef Data* iterator;
-
-    size_t size() const { return m_size; }
-    iterator begin() { return m_begin; }
-    iterator end() { return m_begin + m_size; }
-
-    template<class DataPointer>
-    void set_allocation(DataPointer begin, size_t size)
-    {
-        assert(begin != nullptr || size == 0);
-        m_size = size;
-        m_begin = (iterator)begin;
-    }
-
-    Data& operator[](unsigned i)
-    {
-        assert(i < m_size);
-        return *(m_begin + i);
-    }
-
-    const Data& operator[](unsigned i) const
-    {
-        assert(i < m_size);
-        return *(m_begin + i);
-    }
-
-    void clear()
-    {
-        m_size = 0;
-        m_begin = nullptr;
-    }
-
-  private:
-    size_t m_size;
-    Data* m_begin;
-};
-
 enum PointType
 {
     VERTEX,
@@ -80,9 +34,9 @@ enum PointType
 class MeshElementBase // prototype of vertices, edges and faces
 {
   public:
-    typedef SimpleVector<vertex_pointer> vertex_pointer_vector;
-    typedef SimpleVector<edge_pointer> edge_pointer_vector;
-    typedef SimpleVector<face_pointer> face_pointer_vector;
+    typedef std::vector<vertex_pointer> vertex_pointer_vector;
+    typedef std::vector<edge_pointer> edge_pointer_vector;
+    typedef std::vector<face_pointer> face_pointer_vector;
 
     MeshElementBase()
       : m_id(0)
