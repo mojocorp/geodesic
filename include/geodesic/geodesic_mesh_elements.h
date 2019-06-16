@@ -34,26 +34,27 @@ enum PointType
 class MeshElementBase // prototype of vertices, edges and faces
 {
   public:
-    typedef std::vector<vertex_pointer> vertex_pointer_vector;
-    typedef std::vector<edge_pointer> edge_pointer_vector;
-    typedef std::vector<face_pointer> face_pointer_vector;
-
     MeshElementBase()
       : m_id(0)
       , m_type(UNDEFINED_POINT)
     {}
 
-    vertex_pointer_vector& adjacent_vertices() { return m_adjacent_vertices; }
-    edge_pointer_vector& adjacent_edges() { return m_adjacent_edges; }
-    face_pointer_vector& adjacent_faces() { return m_adjacent_faces; }
+    std::vector<vertex_pointer>& adjacent_vertices() { return m_adjacent_vertices; }
+    std::vector<edge_pointer>& adjacent_edges() { return m_adjacent_edges; }
+    std::vector<face_pointer>& adjacent_faces() { return m_adjacent_faces; }
 
-    unsigned& id() { return m_id; }
+    const std::vector<vertex_pointer>& adjacent_vertices() const { return m_adjacent_vertices; }
+    const std::vector<edge_pointer>& adjacent_edges() const { return m_adjacent_edges; }
+    const std::vector<face_pointer>& adjacent_faces() const { return m_adjacent_faces; }
+
+    unsigned id() const { return m_id; }
+    void set_id(unsigned id) { m_id = id; }
     PointType type() const { return m_type; }
 
   protected:
-    vertex_pointer_vector m_adjacent_vertices; // list of the adjacent vertices
-    edge_pointer_vector m_adjacent_edges;      // list of the adjacent edges
-    face_pointer_vector m_adjacent_faces;      // list of the adjacent faces
+    std::vector<vertex_pointer> m_adjacent_vertices; // list of the adjacent vertices
+    std::vector<edge_pointer> m_adjacent_edges;      // list of the adjacent edges
+    std::vector<face_pointer> m_adjacent_faces;      // list of the adjacent faces
 
     unsigned m_id;    // unique id
     PointType m_type; // vertex, edge or face
@@ -131,7 +132,7 @@ class Face : public MeshElementBase
     vertex_pointer opposite_vertex(edge_pointer e);
     edge_pointer next_edge(edge_pointer e, vertex_pointer v);
 
-    double vertex_angle(vertex_pointer v)
+    double vertex_angle(vertex_pointer v) const
     {
         for (unsigned i = 0; i < 3; ++i) {
             if (adjacent_vertices()[i]->id() == v->id()) {
@@ -241,10 +242,10 @@ class SurfacePoint : public Point3D // point on the surface of the mesh
                  double a = 0.5)
       : m_p(e)
     {
-        double b = 1 - a;
+        const double b = 1 - a;
 
-        vertex_pointer v0 = e->adjacent_vertices()[0];
-        vertex_pointer v1 = e->adjacent_vertices()[1];
+        const vertex_pointer v0 = e->adjacent_vertices()[0];
+        const vertex_pointer v1 = e->adjacent_vertices()[1];
 
         m_coordinates[0] = b * v0->x() + a * v1->x();
         m_coordinates[1] = b * v0->y() + a * v1->y();

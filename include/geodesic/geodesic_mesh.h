@@ -118,7 +118,7 @@ Mesh::initialize_mesh_data(unsigned num_vertices,
     for (unsigned i = 0; i < num_vertices; ++i) // copy coordinates to vertices
     {
         Vertex& v = m_vertices[i];
-        v.id() = i;
+        v.set_id(i);
 
         unsigned shift = 3 * i;
         v.set(p[shift], p[shift + 1], p[shift + 2]);
@@ -128,7 +128,7 @@ Mesh::initialize_mesh_data(unsigned num_vertices,
     for (unsigned i = 0; i < num_faces; ++i) // copy adjacent vertices to polygons/faces
     {
         Face& f = m_faces[i];
-        f.id() = i;
+        f.set_id(i);
         f.adjacent_vertices().resize(3); // allocate three units of memory
 
         unsigned shift = 3 * i;
@@ -209,7 +209,7 @@ Mesh::build_adjacencies()
     unsigned edge_id = 0;
     for (unsigned i = 0; i < half_edges.size();) {
         Edge& e = m_edges[edge_id];
-        e.id() = edge_id++;
+        e.set_id(edge_id++);
 
         e.adjacent_vertices().resize(2); // allocate two units of memory
 
