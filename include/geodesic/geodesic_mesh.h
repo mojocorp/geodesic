@@ -415,43 +415,4 @@ Mesh::verify() // verifies connectivity of the mesh and prints some debug info
     return true;
 }
 
-inline void
-fill_surface_point_structure(geodesic::SurfacePoint* point, const double* data, Mesh* mesh)
-{
-    point->set(data[0], data[1], data[2]);
-    unsigned type = (unsigned)data[3];
-    unsigned id = (unsigned)data[4];
-
-    if (type == 0) // vertex
-    {
-        point->base_element() = &mesh->vertices()[id];
-    } else if (type == 1) // edge
-    {
-        point->base_element() = &mesh->edges()[id];
-    } else // face
-    {
-        point->base_element() = &mesh->faces()[id];
-    }
-}
-
-inline void
-fill_surface_point_double(const geodesic::SurfacePoint* point, double* data, long mesh_id)
-{
-    data[0] = point->x();
-    data[1] = point->y();
-    data[2] = point->z();
-    data[4] = point->base_element()->id();
-
-    if (point->type() == VERTEX) // vertex
-    {
-        data[3] = 0;
-    } else if (point->type() == EDGE) // edge
-    {
-        data[3] = 1;
-    } else // face
-    {
-        data[3] = 2;
-    }
-}
-
 } // geodesic

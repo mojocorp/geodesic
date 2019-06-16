@@ -64,6 +64,45 @@ find_mesh_id(const geodesic::Mesh* mesh)
     return 0;
 }
 
+inline void
+fill_surface_point_structure(geodesic::SurfacePoint& point, const double* data, geodesic::Mesh* mesh)
+{
+    point.set(data[0], data[1], data[2]);
+    unsigned type = (unsigned)data[3];
+    unsigned id = (unsigned)data[4];
+
+    if (type == 0) // vertex
+    {
+        point.base_element() = &mesh->vertices()[id];
+    } else if (type == 1) // edge
+    {
+        point.base_element() = &mesh->edges()[id];
+    } else // face
+    {
+        point.base_element() = &mesh->faces()[id];
+    }
+}
+
+inline void
+fill_surface_point_double(const geodesic::SurfacePoint& point, double* data, long mesh_id)
+{
+    data[0] = point.x();
+    data[1] = point.y();
+    data[2] = point.z();
+    data[4] = point.base_element()->id();
+
+    if (point.type() == geodesic::VERTEX) // vertex
+    {
+        data[3] = 0;
+    } else if (point.type() == geodesic::EDGE) // edge
+    {
+        data[3] = 1;
+    } else // face
+    {
+        data[3] = 2;
+    }
+}
+
 GEODESIC_DLL_IMPORT long
 distance_and_source(long algorithm_id, // quickly find what source this point belongs to and what is
                                        // the distance to this source
@@ -73,7 +112,7 @@ distance_and_source(long algorithm_id, // quickly find what source this point be
     geodesic::SurfacePoint point;
     geodesic::GeodesicAlgorithmBase* algorithm = algorithms[algorithm_id].get();
     std::size_t mesh_id = find_mesh_id(algorithm->mesh());
-    geodesic::fill_surface_point_structure(&point, destination, algorithm->mesh());
+    fill_surface_point_structure(point, destination, algorithm->mesh());
 
     std::size_t best_source = algorithm->best_source(point, *best_source_distance);
     return best_source;
@@ -109,15 +148,15 @@ trace_back(long algorithm_id, double* destination, double** path)
 {
     geodesic::SurfacePoint point;
     geodesic::GeodesicAlgorithmBase* algorithm = algorithms[algorithm_id].get();
-    geodesic::fill_surface_point_structure(&point, destination, algorithm->mesh());
+    fill_surface_point_structure(point, destination, algorithm->mesh());
 
     algorithm->trace_back(point, output_path);
 
     std::size_t mesh_id = find_mesh_id(algorithm->mesh());
     output_buffer.allocate<double>(output_path.size() * 5);
     for (std::size_t i = 0; i < output_path.size(); ++i) {
-        geodesic::fill_surface_point_double(
-          &output_path[i], output_buffer.get<double>() + 5 * i, mesh_id);
+        fill_surface_point_double(
+          output_path[i], output_buffer.get<double>() + 5 * i, mesh_id);
     }
 
     *path = output_buffer.get<double>();
@@ -137,12 +176,12 @@ propagate(long algorithm_id,
 
     geodesic::Mesh* mesh = algorithms[algorithm_id]->mesh();
     for (std::size_t i = 0; i < num_sources; ++i) {
-        geodesic::fill_surface_point_structure(&sources[i], source_points + 5 * i, mesh);
+        fill_surface_point_structure(sources[i], source_points + 5 * i, mesh);
     }
 
     std::vector<geodesic::SurfacePoint> stop(num_stop_points);
     for (std::size_t i = 0; i < num_stop_points; ++i) {
-        geodesic::fill_surface_point_structure(&stop[i], stop_points + 5 * i, mesh);
+        fill_surface_point_structure(stop[i], stop_points + 5 * i, mesh);
     }
 
     algorithms[algorithm_id]->propagate(sources, max_propagation_distance, &stop);
