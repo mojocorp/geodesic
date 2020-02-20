@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <memory>
 
 #include "geodesic_mesh.h"
 #include "geodesic_algorithm_dijkstra_alternative.h"
