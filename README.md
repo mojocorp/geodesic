@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/mojocorp/geodesic.png)](http://travis-ci.org/mojocorp/geodesic)
+![C/C++ CI](https://github.com/mojocorp/geodesic/workflows/C/C++%20CI/badge.svg?branch=master)
 
 # Introduction
 

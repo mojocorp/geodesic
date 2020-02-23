@@ -1,0 +1,30 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: configure
+      shell: bash
+      run: mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=installed -DCMAKE_BUILD_TYPE=Release ..
+    - name: build
+      shell: bash
+      run: cmake --build build --config Release --target install
+    - name: packing
+      shell: bash
+      run: |
+          cd build
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            /c/Program\ Files/CMake/bin/cpack -G ZIP
+          else
+            cpack -G ZIP
+          fi
+
