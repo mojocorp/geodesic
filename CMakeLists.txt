@@ -32,7 +32,7 @@ target_sources(geodesic_interface INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_exact_elements.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_graph_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_subdivision.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_constants_and_simple_functions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_constants.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_mesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_mesh_elements.h
 )
@@ -73,10 +73,10 @@ ENDIF(PYTHON_BINDING)
 #################################################################################
 # TESTS
 #################################################################################
-add_executable(example0 tests/example0.cpp)
+add_executable(example0 tests/common.h tests/example0.cpp)
 target_link_libraries(example0 geodesic_interface)
 
-add_executable(example1 tests/example1.cpp)
+add_executable(example1 tests/common.h tests/example1.cpp)
 target_link_libraries(example1 geodesic_interface)
 
 install(TARGETS example0 RUNTIME DESTINATION tests)

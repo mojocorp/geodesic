@@ -9,7 +9,7 @@
 #include <fstream>
 
 #include "geodesic_mesh_elements.h"
-#include "geodesic_constants_and_simple_functions.h"
+#include "geodesic_constants.h"
 
 namespace geodesic {
 
@@ -269,6 +269,15 @@ Mesh::build_adjacencies()
         }
     }
 
+    // compute the cosine of the angle given the lengths of the edges
+    auto cos_from_edges = [](double const a, double const b, double const c) -> double {
+        assert(a > 1e-50);
+        assert(b > 1e-50);
+        assert(c > 1e-50);
+
+        return std::min(std::max((b * b + c * c - a * a) / (2.0 * b * c), -1.0), 1.0);
+    };
+
     // compute angles for the faces
     for (unsigned i = 0; i < m_faces.size(); ++i) {
         Face& f = m_faces[i];
@@ -281,7 +290,7 @@ Mesh::build_adjacencies()
                 abc[k] = f.opposite_edge(v)->length();
             }
 
-            double angle = angle_from_edges(abc[0], abc[1], abc[2]);
+            double angle = std::acos(cos_from_edges(abc[0], abc[1], abc[2]));
             assert(angle > 1e-5); // algorithm works well with non-degenerate meshes only
 
             f.corner_angles()[j] = angle;

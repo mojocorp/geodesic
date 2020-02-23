@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 
+#include "common.h"
 #include "geodesic_algorithm_dijkstra.h"
 #include "geodesic_algorithm_subdivision.h"
 #include "geodesic_algorithm_exact.h"

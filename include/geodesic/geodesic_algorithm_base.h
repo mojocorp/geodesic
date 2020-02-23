@@ -3,7 +3,7 @@
 #pragma once
 
 #include "geodesic_mesh.h"
-#include "geodesic_constants_and_simple_functions.h"
+#include "geodesic_constants.h"
 #include <iostream>
 #include <ctime>
 
