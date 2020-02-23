@@ -18,14 +18,14 @@ class GeodesicAlgorithmExact : public GeodesicAlgorithmBase
       : GeodesicAlgorithmBase(mesh)
       , m_edge_interval_lists(mesh->edges().size())
     {
-        m_type = EXACT;
-
         for (unsigned i = 0; i < m_edge_interval_lists.size(); ++i) {
             m_edge_interval_lists[i].initialize(&mesh->edges()[i]);
         }
     }
 
     ~GeodesicAlgorithmExact() override {}
+
+    std::string name() const override { return "exact"; }
 
     void propagate(
       const std::vector<SurfacePoint>& sources,

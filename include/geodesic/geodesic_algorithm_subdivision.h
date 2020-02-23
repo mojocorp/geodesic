@@ -89,8 +89,6 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
     GeodesicAlgorithmSubdivision(geodesic::Mesh* mesh = nullptr, unsigned subdivision_level = 0)
       : GeodesicAlgorithmGraphBase<Node>(mesh)
     {
-        m_type = SUBDIVISION;
-
         m_nodes.reserve(mesh->vertices().size());
         for (unsigned i = 0; i < mesh->vertices().size(); ++i) {
             vertex_pointer v = &mesh->vertices()[i];
@@ -101,6 +99,8 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
     }
 
     ~GeodesicAlgorithmSubdivision() {}
+
+    std::string name() const override { return "subdivision"; }
 
     unsigned subdivision_level() { return m_subdivision_level; }
 
@@ -121,16 +121,16 @@ class GeodesicAlgorithmSubdivision : public GeodesicAlgorithmGraphBase<Subdivisi
     }
 
   protected:
-    void list_nodes_visible_from_source(
-      MeshElementBase* p,
-      std::vector<node_pointer>& storage); // list all nodes that belong to this mesh element
+    void list_nodes_visible_from_source(MeshElementBase* p,
+                                        std::vector<node_pointer>& storage)
+      override; // list all nodes that belong to this mesh element
 
     void list_nodes_visible_from_node(
       node_pointer node, // list all nodes that belong to this mesh element
       std::vector<node_pointer>& storage,
       std::vector<double>& distances,
-      double threshold_distance); // list only the nodes whose current distance is larger than the
-                                  // threshold
+      double threshold_distance) override; // list only the nodes whose current distance is larger
+                                           // than the threshold
 
     unsigned node_indexx(edge_pointer e)
     {

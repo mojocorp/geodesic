@@ -52,13 +52,14 @@ class GeodesicAlgorithmDijkstraAlternative : public GeodesicAlgorithmBase
       : GeodesicAlgorithmBase(mesh)
       , m_nodes(mesh->vertices().size())
     {
-        m_type = DIJKSTRA;
         for (unsigned i = 0; i < m_nodes.size(); ++i) {
             m_nodes[i].vertex() = &m_mesh->vertices()[i];
         }
     }
 
     ~GeodesicAlgorithmDijkstraAlternative() {}
+
+    std::string name() const override { return "dijkstraAlternative"; }
 
     virtual void propagate(
       std::vector<SurfacePoint>& sources,

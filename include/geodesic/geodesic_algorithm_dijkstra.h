@@ -55,8 +55,6 @@ class GeodesicAlgorithmDijkstra : public GeodesicAlgorithmGraphBase<DijkstraNode
     GeodesicAlgorithmDijkstra(geodesic::Mesh* mesh)
       : GeodesicAlgorithmGraphBase<Node>(mesh)
     {
-        m_type = DIJKSTRA;
-
         m_nodes.resize(mesh->vertices().size());
         for (unsigned i = 0; i < m_nodes.size(); ++i) {
             m_nodes[i].vertex() = &m_mesh->vertices()[i];
@@ -65,17 +63,19 @@ class GeodesicAlgorithmDijkstra : public GeodesicAlgorithmGraphBase<DijkstraNode
 
     ~GeodesicAlgorithmDijkstra() {}
 
+    std::string name() const override { return "dijkstra"; }
+
   protected:
-    void list_nodes_visible_from_source(
-      MeshElementBase* p,
-      std::vector<node_pointer>& storage); // list all nodes that belong to this mesh element
+    void list_nodes_visible_from_source(MeshElementBase* p,
+                                        std::vector<node_pointer>& storage)
+      override; // list all nodes that belong to this mesh element
 
     void list_nodes_visible_from_node(
       node_pointer node, // list all nodes that belong to this mesh element
       std::vector<node_pointer>& storage,
       std::vector<double>& distances,
-      double threshold_distance); // list only the nodes whose current distance is larger than the
-                                  // threshold
+      double threshold_distance) override; // list only the nodes whose current distance is larger
+                                           // than the threshold
 };
 
 void

@@ -12,17 +12,8 @@ namespace geodesic {
 class GeodesicAlgorithmBase
 {
   public:
-    enum AlgorithmType
-    {
-        EXACT,
-        DIJKSTRA,
-        SUBDIVISION,
-        UNDEFINED_ALGORITHM
-    };
-
     GeodesicAlgorithmBase(geodesic::Mesh* mesh)
-      : m_type(UNDEFINED_ALGORITHM)
-      , m_max_propagation_distance(1e100)
+      : m_max_propagation_distance(1e100)
       , m_mesh(mesh)
     {}
 
@@ -59,17 +50,13 @@ class GeodesicAlgorithmBase
         std::cout << "propagation step took " << m_time_consumed << " seconds " << std::endl;
     }
 
-    AlgorithmType type() const { return m_type; }
-
-    virtual std::string name() const;
+    virtual std::string name() const = 0;
 
     geodesic::Mesh* mesh() { return m_mesh; }
 
   protected:
     void set_stop_conditions(const std::vector<SurfacePoint>* stop_points, double stop_distance);
     double stop_distance() { return m_max_propagation_distance; }
-
-    AlgorithmType m_type; // type of the algorithm
 
     typedef std::pair<vertex_pointer, double> stop_vertex_with_distace_type;
     std::vector<stop_vertex_with_distace_type>
@@ -100,22 +87,6 @@ print_info_about_path(const std::vector<SurfacePoint>& path)
 {
     std::cout << "number of the points in the path = " << path.size()
               << ", length of the path = " << length(path) << std::endl;
-}
-
-inline std::string
-GeodesicAlgorithmBase::name() const
-{
-    switch (m_type) {
-        case EXACT:
-            return "exact";
-        case DIJKSTRA:
-            return "dijkstra";
-        case SUBDIVISION:
-            return "subdivision";
-        default:
-        case UNDEFINED_ALGORITHM:
-            return "undefined";
-    }
 }
 
 inline void
