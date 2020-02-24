@@ -7,11 +7,11 @@
 #include <string>
 #include <memory>
 
-#include "geodesic_mesh.h"
-#include "geodesic_algorithm_dijkstra_alternative.h"
-#include "geodesic_algorithm_dijkstra.h"
-#include "geodesic_algorithm_subdivision.h"
-#include "geodesic_algorithm_exact.h"
+#include <geodesic/geodesic_mesh.h>
+#include <geodesic/geodesic_algorithm_dijkstra_alternative.h>
+#include <geodesic/geodesic_algorithm_dijkstra.h>
+#include <geodesic/geodesic_algorithm_subdivision.h>
+#include <geodesic/geodesic_algorithm_exact.h>
 #include "geodesic_matlab_api.h"
 
 class OutputBuffer

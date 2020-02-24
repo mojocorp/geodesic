@@ -70,25 +70,6 @@ class GeodesicAlgorithmBase
       m_propagation_distance_stopped; // at what distance (if any) the propagation algorithm stopped
 };
 
-inline double
-length(const std::vector<SurfacePoint>& path)
-{
-    double length = 0;
-    if (!path.empty()) {
-        for (unsigned i = 0; i < path.size() - 1; ++i) {
-            length += path[i].distance(path[i + 1]);
-        }
-    }
-    return length;
-}
-
-inline void
-print_info_about_path(const std::vector<SurfacePoint>& path)
-{
-    std::cout << "number of the points in the path = " << path.size()
-              << ", length of the path = " << length(path) << std::endl;
-}
-
 inline void
 GeodesicAlgorithmBase::geodesic(
   const SurfacePoint& source,

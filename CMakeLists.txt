@@ -25,7 +25,7 @@ OPTION(MATLAB_BINDING "Set when you want to build MATLAB_BINDING (Matlab binding
 # GEODESIC LIBRARY
 #################################################################################
 add_library(geodesic_interface INTERFACE)
-target_include_directories(geodesic_interface INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic)
+target_include_directories(geodesic_interface INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_sources(geodesic_interface INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/geodesic/geodesic_algorithm_dijkstra.h

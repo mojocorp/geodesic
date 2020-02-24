@@ -1,9 +1,30 @@
 #pragma once
 
+#include <geodesic/geodesic_mesh_elements.h>
+
 #include <assert.h>
 #include <fstream>
 
 namespace geodesic {
+
+inline double
+length(const std::vector<SurfacePoint>& path)
+{
+    double length = 0;
+    if (!path.empty()) {
+        for (unsigned i = 0; i < path.size() - 1; ++i) {
+            length += path[i].distance(path[i + 1]);
+        }
+    }
+    return length;
+}
+
+inline void
+print_info_about_path(const std::vector<SurfacePoint>& path)
+{
+    std::cout << "number of the points in the path = " << path.size()
+              << ", length of the path = " << length(path) << std::endl;
+}
 
 template<class Points, class Faces>
 inline bool
