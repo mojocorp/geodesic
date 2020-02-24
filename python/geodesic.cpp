@@ -41,9 +41,22 @@ PYBIND11_MODULE(geodesic, m)
         .def("best_source", &geodesic::GeodesicAlgorithmBase::best_source)
         .def("geodesic",[](geodesic::GeodesicAlgorithmBase &self, int src, int dst)
         {
+            geodesic::SurfacePoint source(&self.mesh()->vertices()[src]);
+            geodesic::SurfacePoint target(&self.mesh()->vertices()[dst]);
             std::vector<geodesic::SurfacePoint> path;
-            self.geodesic(geodesic::SurfacePoint(&self.mesh()->vertices()[src]),
-                          geodesic::SurfacePoint(&self.mesh()->vertices()[dst]), path);
+
+            double const distance_limit = geodesic::GEODESIC_INF; // no limit for propagation
+
+            std::vector<geodesic::SurfacePoint> all_sources(1, source); // in general, there could be multiple sources, but now we have only one
+            std::vector<geodesic::SurfacePoint> stop_points(1, target); // stop propagation when the target is covered
+
+            self.propagate(all_sources,
+                            distance_limit,
+                            &stop_points); //"propagate(all_sources)" is also fine, but take
+                                           // more time because covers the whole mesh
+
+            self.trace_back(target, path); // trace back a single path
+
             std::vector<std::vector<double>> spath;
             spath.resize(path.size());
             for (int k=0; k<path.size(); ++k) {
