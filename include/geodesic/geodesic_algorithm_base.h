@@ -29,16 +29,6 @@ class GeodesicAlgorithmBase
     virtual void trace_back(const SurfacePoint& destination, // trace back piecewise-linear path
                             std::vector<SurfacePoint>& path) = 0;
 
-    void geodesic(
-      const SurfacePoint& source,
-      const SurfacePoint& destination,
-      std::vector<SurfacePoint>& path); // lazy people can find geodesic path with one function call
-
-    void geodesic(std::vector<SurfacePoint>& sources,
-                  std::vector<SurfacePoint>& destinations,
-                  std::vector<std::vector<SurfacePoint>>&
-                    paths); // lazy people can find geodesic paths with one function call
-
     virtual unsigned best_source(
       const SurfacePoint& point, // after propagation step is done, quickly find what source this
                                  // point belongs to and what is the distance to this source
@@ -69,41 +59,6 @@ class GeodesicAlgorithmBase
     double
       m_propagation_distance_stopped; // at what distance (if any) the propagation algorithm stopped
 };
-
-inline void
-GeodesicAlgorithmBase::geodesic(
-  const SurfacePoint& source,
-  const SurfacePoint& destination,
-  std::vector<SurfacePoint>& path) // lazy people can find geodesic path with one function call
-{
-    std::vector<SurfacePoint> sources(1, source);
-    std::vector<SurfacePoint> stop_points(1, destination);
-    double const max_propagation_distance = GEODESIC_INF;
-
-    propagate(sources, max_propagation_distance, &stop_points);
-
-    trace_back(destination, path);
-}
-
-inline void
-GeodesicAlgorithmBase::geodesic(
-  std::vector<SurfacePoint>& sources,
-  std::vector<SurfacePoint>& destinations,
-  std::vector<std::vector<SurfacePoint>>&
-    paths) // lazy people can find geodesic paths with one function call
-{
-    double const max_propagation_distance = GEODESIC_INF;
-
-    propagate(sources,
-              max_propagation_distance,
-              &destinations); // we use desinations as stop points
-
-    paths.resize(destinations.size());
-
-    for (unsigned i = 0; i < paths.size(); ++i) {
-        trace_back(destinations[i], paths[i]);
-    }
-}
 
 inline void
 GeodesicAlgorithmBase::set_stop_conditions(const std::vector<SurfacePoint>* stop_points,

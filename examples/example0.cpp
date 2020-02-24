@@ -46,21 +46,15 @@ main(int argc, char** argv)
 
         std::vector<geodesic::SurfacePoint> path; // geodesic path is a sequence of SurfacePoints
 
-        bool const lazy_people_flag = false; // there are two ways to do exactly the same
-        if (lazy_people_flag) {
-            algorithm.geodesic(source, target, path); // find a single source-target path
-        } else // doing the same thing explicitly for educational reasons
-        {
-            double const distance_limit = geodesic::GEODESIC_INF; // no limit for propagation
-            std::vector<geodesic::SurfacePoint> stop_points(
-              1, target); // stop propagation when the target is covered
-            algorithm.propagate(all_sources,
-                                distance_limit,
-                                &stop_points); //"propagate(all_sources)" is also fine, but take
-                                               // more time because covers the whole mesh
+        double const distance_limit = geodesic::GEODESIC_INF; // no limit for propagation
+        std::vector<geodesic::SurfacePoint> stop_points(
+          1, target); // stop propagation when the target is covered
+        algorithm.propagate(all_sources,
+                            distance_limit,
+                            &stop_points); //"propagate(all_sources)" is also fine, but take
+                                           // more time because covers the whole mesh
 
-            algorithm.trace_back(target, path); // trace back a single path
-        }
+        algorithm.trace_back(target, path); // trace back a single path
 
         print_info_about_path(path);
         for (unsigned i = 0; i < path.size(); ++i) {
