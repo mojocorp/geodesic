@@ -2,12 +2,12 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
-#include <geodesic_mesh_elements.h>
-#include <geodesic_mesh.h>
-#include <geodesic_algorithm_graph_base.h>
-#include <geodesic_algorithm_dijkstra.h>
-#include <geodesic_algorithm_exact.h>
-#include <geodesic_algorithm_subdivision.h>
+#include <geodesic/geodesic_mesh_elements.h>
+#include <geodesic/geodesic_mesh.h>
+#include <geodesic/geodesic_algorithm_graph_base.h>
+#include <geodesic/geodesic_algorithm_dijkstra.h>
+#include <geodesic/geodesic_algorithm_exact.h>
+#include <geodesic/geodesic_algorithm_subdivision.h>
 
 namespace py = pybind11;
 

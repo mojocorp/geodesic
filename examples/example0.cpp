@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "common.h"
-#include "geodesic_algorithm_exact.h"
+#include <geodesic/geodesic_algorithm_exact.h>
 
 int
 main(int argc, char** argv)

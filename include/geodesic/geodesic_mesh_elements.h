@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cmath>
 #include <algorithm>
+#include <vector>
 
 namespace geodesic {
 
