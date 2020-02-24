@@ -19,7 +19,6 @@ set(CMAKE_CXX_STANDARD 11)
 
 OPTION(BUILD_TESTS "Set when you want to build the tests" ON)
 OPTION(PYTHON_BINDING "Set when you want to build PYTHON_BINDING (Python bindings for the library)" ON)
-OPTION(MATLAB_BINDING "Set when you want to build MATLAB_BINDING (Matlab bindings for the library)" ON)
 
 #################################################################################
 # GEODESIC LIBRARY
@@ -69,16 +68,6 @@ IF(BUILD_TESTS)
     configure_file(examples/hedgehog_mesh.txt ${CMAKE_CURRENT_BINARY_DIR}/hedgehog_mesh.txt COPYONLY)
     
 ENDIF(BUILD_TESTS)
-
-#################################################################################
-# MATLAB LIBRARY
-#################################################################################
-IF(MATLAB_BINDING)
-    add_library(geodesic_matlab SHARED matlab/geodesic_matlab_api.h matlab/geodesic_matlab_api.cpp)
-    target_link_libraries(geodesic_matlab geodesic_interface)
-    install(TARGETS geodesic_matlab DESTINATION matlab)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/matlab/examples/ DESTINATION matlab FILES_MATCHING PATTERN "*.m")
-ENDIF(MATLAB_BINDING)
 #################################################################################
 # PYTHON BINDING
 #################################################################################
