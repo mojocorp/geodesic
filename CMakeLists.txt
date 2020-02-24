@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7.0)
+cmake_minimum_required(VERSION 3.11.0)
 project(geodesic)
 
 find_package(Git REQUIRED)
@@ -17,7 +17,9 @@ add_definitions(-DGEODESIC_VERSION="${GEODESIC_VERSION}")
 
 set(CMAKE_CXX_STANDARD 11)
 
+OPTION(BUILD_TESTS "Set when you want to build the tests" ON)
 OPTION(PYTHON_BINDING "Set when you want to build PYTHON_BINDING (Python bindings for the library)" ON)
+OPTION(MATLAB_BINDING "Set when you want to build MATLAB_BINDING (Matlab bindings for the library)" ON)
 
 #################################################################################
 # GEODESIC LIBRARY
@@ -39,13 +41,44 @@ target_sources(geodesic_interface INTERFACE
 install(FILES $<TARGET_PROPERTY:geodesic_interface,INTERFACE_SOURCES> DESTINATION include)
 
 #################################################################################
+# TESTS
+#################################################################################
+IF(BUILD_TESTS)
+    include(FetchContent)
+
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY "https://github.com/google/googletest"
+        GIT_TAG        release-1.8.1
+    )
+
+    set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+    FetchContent_GetProperties(googletest)
+    if(NOT googletest_POPULATED)
+        FetchContent_Populate(googletest)
+        add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+    endif()
+
+    add_executable(unit_tests tests/test_geodesic_algorithm.cpp)
+    target_link_libraries(unit_tests geodesic_interface gtest gtest_main)
+
+    configure_file(examples/flat_triangular_mesh.txt ${CMAKE_CURRENT_BINARY_DIR}/flat_triangular_mesh.txt COPYONLY)
+    configure_file(examples/hedgehog_mesh.txt ${CMAKE_CURRENT_BINARY_DIR}/hedgehog_mesh.txt COPYONLY)
+    
+ENDIF(BUILD_TESTS)
+
+#################################################################################
 # MATLAB LIBRARY
 #################################################################################
-add_library(geodesic_matlab SHARED matlab/geodesic_matlab_api.h matlab/geodesic_matlab_api.cpp)
-target_link_libraries(geodesic_matlab geodesic_interface)
-install(TARGETS geodesic_matlab DESTINATION matlab)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/matlab/examples/ DESTINATION matlab FILES_MATCHING PATTERN "*.m")
-
+IF(MATLAB_BINDING)
+    add_library(geodesic_matlab SHARED matlab/geodesic_matlab_api.h matlab/geodesic_matlab_api.cpp)
+    target_link_libraries(geodesic_matlab geodesic_interface)
+    install(TARGETS geodesic_matlab DESTINATION matlab)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/matlab/examples/ DESTINATION matlab FILES_MATCHING PATTERN "*.m")
+ENDIF(MATLAB_BINDING)
 #################################################################################
 # PYTHON BINDING
 #################################################################################
@@ -68,20 +101,20 @@ IF(PYTHON_BINDING)
 
     install(TARGETS geodesic LIBRARY DESTINATION python)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/python/example.py DESTINATION python)
-    install(FILES tests/flat_triangular_mesh.txt DESTINATION python)
+    install(FILES examples/flat_triangular_mesh.txt DESTINATION python)
 ENDIF(PYTHON_BINDING)
 #################################################################################
-# TESTS
+# EXAMPLES
 #################################################################################
-add_executable(example0 tests/common.h tests/example0.cpp)
+add_executable(example0 examples/common.h examples/example0.cpp)
 target_link_libraries(example0 geodesic_interface)
 
-add_executable(example1 tests/common.h tests/example1.cpp)
+add_executable(example1 examples/common.h examples/example1.cpp)
 target_link_libraries(example1 geodesic_interface)
 
-install(TARGETS example0 RUNTIME DESTINATION tests)
-install(TARGETS example1 RUNTIME DESTINATION tests)
-install(FILES tests/flat_triangular_mesh.txt tests/hedgehog_mesh.txt DESTINATION tests)
+install(TARGETS example0 RUNTIME DESTINATION examples)
+install(TARGETS example1 RUNTIME DESTINATION examples)
+install(FILES examples/flat_triangular_mesh.txt examples/hedgehog_mesh.txt DESTINATION examples)
 
 #################################################################################
 # CPACK

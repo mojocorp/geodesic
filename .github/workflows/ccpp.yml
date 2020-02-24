@@ -18,6 +18,14 @@ jobs:
     - name: build
       shell: bash
       run: cmake --build build --config Release --target install
+    - name: test
+      shell: bash
+      run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            cd build && ./Release/unit_tests.exe
+          else
+            cd build && ./unit_tests 
+          fi
     - name: packing
       shell: bash
       run: |

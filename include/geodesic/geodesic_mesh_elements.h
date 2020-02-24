@@ -252,12 +252,6 @@ class SurfacePoint : public Point3D // point on the surface of the mesh
         m_coordinates[2] = b * v0->z() + a * v1->z();
     }
 
-    SurfacePoint(const base_pointer g, double x, double y, double z, PointType t = UNDEFINED_POINT)
-      : m_p(g)
-    {
-        set(x, y, z);
-    }
-
     void initialize(SurfacePoint const& p) { *this = p; }
 
     ~SurfacePoint() {}
