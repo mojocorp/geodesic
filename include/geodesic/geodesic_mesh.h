@@ -28,13 +28,6 @@ class Mesh
 
     template<class Points, class Faces>
     void initialize_mesh_data(
-      unsigned num_vertices,
-      const Points& p,
-      unsigned num_faces,
-      const Faces& tri); // build mesh from regular point-triangle representation
-
-    template<class Points, class Faces>
-    void initialize_mesh_data(
       const Points& p,
       const Faces& tri); // build mesh from regular point-triangle representation
 
@@ -104,16 +97,6 @@ Mesh::initialize_mesh_data(
     assert(tri.size() % 3 == 0);
     unsigned const num_faces = tri.size() / 3;
 
-    initialize_mesh_data(num_vertices, p, num_faces, tri);
-}
-
-template<class Points, class Faces>
-void
-Mesh::initialize_mesh_data(unsigned num_vertices,
-                           const Points& p,
-                           unsigned num_faces,
-                           const Faces& tri)
-{
     m_vertices.resize(num_vertices);
     for (unsigned i = 0; i < num_vertices; ++i) // copy coordinates to vertices
     {
